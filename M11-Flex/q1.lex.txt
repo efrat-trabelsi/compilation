@@ -1,0 +1,54 @@
+%{
+#include <string.h> 
+#include <stdlib.h>
+%}
+
+%option noyywrap
+
+%option yylineno
+
+
+%%
+
+[0-9]+	{ fprintf(%s, yytext); }
+
+1	{ fprintf(%s, "I"); }
+2	{ fprintf(%s, "II"); }
+3	{ fprintf(%s, "III)"); }
+4	{ fprintf(%s, "IV"); }
+5	{ fprintf(%s, "V"); }
+6	{ fprintf(%s, "VI"); }
+7	{ fprintf(%s, "VII"); }
+8	{ fprintf(%s, "VIII"); }
+9	{ fprintf(%s, "IX"); }
+
+.	{ fprintf(%s, yytext); }
+
+
+[a-zA-Z]+	{ fprintf(%s, yytext); }
+[,.'\t\r ]+  { fprintf(%s, yytext); }   //להוסיף סימני פיסוק
+
+[\n]+       { line += yyleng; /* line += strlen(yytext); */ fprintf(%s, yytext); }
+
+.          { fprintf (stderr, "line %d: unrecognized token %c(%x)\n", 
+                               line, yytext[0], yytext[0]); }
+
+%%
+
+int main (int argc, char **argv)
+{
+   extern FILE *yyin;
+   int token;
+
+   if (argc != 2) {
+      fprintf(stderr, "Usage: %s <input file name>\n", argv [0]);
+      exit (1);
+   }
+
+   yyin = fopen (argv[1], "r");
+
+   while ((token = yylex ()) != 0);  //איך לזהות את סוף הקלט? איך לזהות שגיאה?
+   
+   fclose (yyin);
+   exit (0);
+}
