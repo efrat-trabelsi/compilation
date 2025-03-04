@@ -1,0 +1,227 @@
+%{
+#define NUM 300
+#define ID 301
+
+// keywords
+#define BREAK 302
+#define CASE 303
+#define DEFAULT 304
+#define ELSE 305
+#define FLOAT 306
+#define IF 307
+#define INPUT 308
+#define INT 309
+#define OUTPUT 310
+#define SWITCH 311
+#define WHILE 312
+
+// symbols
+#define LEFT_PARENTHESIS 320
+#define RIGHT_PARENTHESIS 321
+#define LEFT_BRACKET 322
+#define RIGHT_BRACKET 323
+#define COMMA 324
+#define COLON 325
+#define SEMICOLON 326
+#define EQUAL 327
+
+// operators
+#define RELOP 330
+#define ADDOP 331
+#define MULOP 332
+#define OR 333
+#define AND 334
+#define NOT 335
+#define CAST 336
+
+// enum  tokentype { NUM=300,ID=506 };
+
+enum operator  {PLUS, MINUS, MUL, DIV };
+
+union {
+  int ival;
+  char name [30];
+  enum operator op;
+} yylval;
+
+//int line = 1; // current input line. If we use %yylineno, we don't need this */
+
+#include <string.h> 
+#include <stdlib.h>
+
+extern int atoi (const char *);
+%}
+
+%option noyywrap
+
+%option yylineno  // use this var!!!
+
+/* exclusive start conditions -- deal with two types of comments */ 
+%x COMMENT
+%x STAR_COMMENT
+/*
+1598
+abcdefg
+atoi("675")
+yytext[0] :'1'
+yytext[1] :'5'
+yytext[2] :'9'
+yytext[3] :'8'
+yytext[4] :'\0'
+158  foo  (
+NUM   ID   (
+*/
+
+%%
+
+[0-9]+		{ yylval.ival = atoi(yytext); return NUM; }  //צריך לשמור גם את הערך הסמנטי
+
+"break"		{ return BREAK; }
+"case"		{ return CASE; }
+"default"	{ return DEFAULT; }
+"else"		{ return ELSE; }
+"float"		{ return FLOAT; }
+"if"		{ return IF; }
+"input"		{ return INPUT; }
+"int"		{ return INT; }
+"output"	{ return OUTPUT; }
+"switch"	{ return SWITCH; }
+"while"		{ return WHILE;}
+
+'('		{ return LEFT_PARENTHESIS;}		// { return '(';}
+')'		{ return RIGHT_PARENTHESIS;}	// { return ')';}
+'{'		{ return LEFT_BRACKET;}			// { return '{';}
+'}'		{ return RIGHT_BRACKET;}		// { return '}';}
+','		{ return COMMA;}				// { return ',';}
+':'		{ return COLON;}				// { return ':';}
+';'		{ return SEMICOLON;}			// { return ';';}
+'='		{ return EQUAL;}				// { return '=';}
+
+[a-zA-Z][a-zA-Z0-9]*	{ strcpy (yylval.name, yytext); return ID; }
+
+"=="	{ yylval. = ??; return RELOP; } // add operators as semantic value?
+"!="	{ yylval. = ??; return RELOP; }
+"<"		{ yylval. = ??; return RELOP; }
+">"		{ yylval. = ??; return RELOP; }
+">="	{ yylval. = ??; return RELOP; }
+"<="	{ yylval. = ??; return RELOP; }
+"+"		{ yylval.op = PLUS;	return ADDOP; }
+"-"		{ yylval.op = MINUS; return ADDOP; }
+"*"		{ yylval.op = MUL; return MULOP; }
+"/"		{ yylval.op = DIV; return MULOP; }
+"||"	{ return OR; }
+"&&"	{ return AND; }
+"!"		{ return NOT; }
+
+"cast<int>"		{ ???; return CAST; }  // how to save the semantic value?
+"cast<float>"	{ ???; return CAST; }
+
+[\t\r ]+  { /* skip white space */ }
+
+[\n]+       { line += yyleng; /* line += strlen(yytext); */ }
+ 
+"//"       { BEGIN (COMMENT); }
+
+<COMMENT>.+ /* skip comment */
+<COMMENT>\n {  /* end of comment --> resume normal processing */
+                BEGIN (0);/* same as BEGIN(INITIAL); */  }
+
+ /*  note: the flex manual contains slightly better code for handling
+   comments. see the section on start conditions */  				
+"/*"  { BEGIN(STAR_COMMENT); }
+<STAR_COMMENT>{
+[^*\n]+		{ /* skip chars in comment */ }
+\n     		{ line++; }
+"*"			{ /* skip a '*'. (if the '*' is followed by a slash -- the next rule will handle it) */ } 
+"*/"		{ BEGIN(0); }
+} // end STAR_COMMENT
+
+.		{ fprintf (stderr, "line %d: unrecognized token %c(%x)\n", 
+                               line, yytext[0], yytext[0]); }
+
+%%
+
+int lexer()
+{
+	int token = yylex();
+	return token();
+}
+
+// move this code to another file
+int main (int argc, char **argv)
+{
+   extern FILE *yyin;
+   int token;
+
+   if (argc != 2) {
+      fprintf(stderr, "Usage: %s <input file name>\n", argv [0]);
+      exit (1);
+   }
+
+   yyin = fopen (argv[1], "r");
+   
+   while (token = lexer()) != 0)
+   {
+		printf ("TOKEN  : %s\n", yylval.name);
+		switch (token) {
+			case NUM:
+				printf("NUMBER: %d\n", yylval.ival);
+				break;
+			case ID:
+				printf("ID: %s\n", yylval.name);
+				break;
+			case BREAK:
+				printf("BREAK\n");
+				break;
+			case CASE:
+				printf("CASE\n");
+				break;
+			case DEFAULT:
+				printf("DEFAULT\n");
+				break;
+			case ELSE:
+				printf("ELSE\n");
+				break;
+			case FLOAT:
+				printf("FLOAT\n");
+				break;
+			case IF:
+				printf("IF\n");
+				break;
+			case INPUT:
+				printf("INPUT\n");
+				break;
+			case INT:
+				printf("INT\n");
+				break;
+			case OUTPUT:
+				printf("OUTPUT\n");
+				break;
+			case SWITCH:
+				printf("SWITCH\n");
+				break;
+			case WHILE:
+				printf("WHILE\n");
+				break;
+			
+			case RELOP:
+				printf("RELOP: %s\n", yylval.op);  //check it!
+				break;
+			case :
+				printf("");
+				break;
+			case :
+				printf("");
+				break;
+			case :
+				printf("");
+				break;
+			default:
+				fprintf(stderr, "unrecognized character\n";
+				exit(1);
+		}
+		fclose(yyin);
+		exit(0);
+   }
+}
+
