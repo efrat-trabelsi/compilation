@@ -34,8 +34,6 @@
 #define NOT 335
 #define CAST 336
 
-// enum  tokentype { NUM=300,ID=506 };
-
 enum operator  {PLUS, MINUS, MUL, DIV };
 
 union {
@@ -44,9 +42,6 @@ union {
   enum operator op;
 } yylval;
 
-//int line = 1; // current input line. If we use %yylineno, we don't need this */
-
-#include <string.h> 
 #include <stdlib.h>
 
 extern int atoi (const char *);
@@ -57,20 +52,8 @@ extern int atoi (const char *);
 %option yylineno  // use this var!!!
 
 /* exclusive start conditions -- deal with two types of comments */ 
-%x COMMENT
+%x COMMENT   ///??? unnecessary
 %x STAR_COMMENT
-/*
-1598
-abcdefg
-atoi("675")
-yytext[0] :'1'
-yytext[1] :'5'
-yytext[2] :'9'
-yytext[3] :'8'
-yytext[4] :'\0'
-158  foo  (
-NUM   ID   (
-*/
 
 %%
 
@@ -88,6 +71,7 @@ NUM   ID   (
 "switch"	{ return SWITCH; }
 "while"		{ return WHILE;}
 
+//??? which way is better
 '('		{ return LEFT_PARENTHESIS;}		// { return '(';}
 ')'		{ return RIGHT_PARENTHESIS;}	// { return ')';}
 '{'		{ return LEFT_BRACKET;}			// { return '{';}
@@ -99,7 +83,7 @@ NUM   ID   (
 
 [a-zA-Z][a-zA-Z0-9]*	{ strcpy (yylval.name, yytext); return ID; }
 
-"=="	{ yylval. = ??; return RELOP; } // add operators as semantic value?
+"=="	{ yylval. = ??; return RELOP; } //??? add operators as semantic value?
 "!="	{ yylval. = ??; return RELOP; }
 "<"		{ yylval. = ??; return RELOP; }
 ">"		{ yylval. = ??; return RELOP; }
@@ -113,8 +97,8 @@ NUM   ID   (
 "&&"	{ return AND; }
 "!"		{ return NOT; }
 
-"cast<int>"		{ ???; return CAST; }  // how to save the semantic value?
-"cast<float>"	{ ???; return CAST; }
+"cast<int>"		{ yylval. = ??; return CAST; }  //??? how to save the semantic value?
+"cast<float>"	{ yylval. = ??; return CAST; }
 
 [\t\r ]+  { /* skip white space */ }
 
