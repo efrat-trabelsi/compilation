@@ -1,0 +1,109 @@
+%{
+#define NUMBER 200
+#define EQUAL 201
+#define SUM 202
+#define APPEND 203
+#define TAIL 204
+#define DIVIDE 205
+
+union {
+  int ival;
+} yylval;
+
+#include <stdlib.h>
+
+extern int atoi (const char *);
+%}
+
+%option noyywrap
+%option yylineno
+
+%%
+
+[0-9]+		{ yylval.ival = atoi(yytext); return NUMBER; }  //צריך לשמור גם את הערך הסמנטי
+
+"equal"		{ return EQUAL; }
+"sum"		{ return SUM; }
+"append"	{ return APPEND; }
+"tail"		{ return TAIL; }
+
+'('		{ return '(';}
+')'		{ return ')';}
+'['		{ return '[';}
+']'		{ return ']';}
+','		{ return ',';}
+
+[\t\r ]+  { /* skip white space */ }
+
+[\n]+       { line += yyleng; /* line += strlen(yytext); */ }
+
+.		{ fprintf (stderr, "line %d: unrecognized token %c(%x)\n", 
+                               line, yytext[0], yytext[0]); }
+
+%%
+
+int lexer()
+{
+	int token = yylex();
+	return token();
+}
+
+// move this code to another file
+int main (int argc, char **argv)
+{
+   extern FILE *yyin;
+   int token;
+
+   if (argc != 2) {
+      fprintf(stderr, "Usage: %s <input file name>\n", argv [0]);
+      exit (1);
+   }
+
+   yyin = fopen (argv[1], "r");
+   
+   while (token = lexer()) != 0)
+   {
+		printf ("TOKEN  : %s\n", yylval.name);
+		switch (token) {
+			case NUMBER:
+				printf("NUMBER: %d\n", yylval.ival);
+				break;
+			case EQUAL:
+				printf("EQUAL\n");
+				break;
+			case SUM:
+				printf("SUM\n");
+				break;
+			case APPEND:
+				printf("APPEND\n");
+				break;
+			case TAIL:
+				printf("TAIL\n");
+				break;
+			case DIVIDE:
+				printf("DIVIDE\n");
+				break;
+			//???
+			case '(':
+				printf("(\n");
+				break;
+			case ')':
+				printf(")\n");
+				break;
+			case '[':
+				printf("[\n");
+				break;
+			case ']':
+				printf("]\n");
+				break;
+			case ',':
+				printf(",\n");
+				break;
+			default:
+				fprintf(stderr, "unrecognized character\n";
+				exit(1);
+		}
+		fclose(yyin);
+		exit(0);
+   }
+}
