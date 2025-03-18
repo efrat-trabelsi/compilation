@@ -27,11 +27,11 @@ extern int atoi (const char *);
 "append"	{ return APPEND; }
 "tail"		{ return TAIL; }
 
-'('		{ return '(';}
-')'		{ return ')';}
-'['		{ return '[';}
-']'		{ return ']';}
-','		{ return ',';}
+"("		{ return '(';}
+")"		{ return ')';}
+"["		{ return '[';}
+"]"		{ return ']';}
+","		{ return ',';}
 
 [\t\r ]+  { /* skip white space */ }
 
