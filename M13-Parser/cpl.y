@@ -1,8 +1,8 @@
 %{
 %}
 
-%token ID
 %token NUM
+%token ID
 
 %token BREAK
 %token CASE
