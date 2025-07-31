@@ -12,7 +12,9 @@ union {
 
 #include <stdlib.h>
 
-extern int atoi (const char *);
+extern int atoi(const char *);
+
+int line = 0;
 %}
 
 %option noyywrap
@@ -20,50 +22,44 @@ extern int atoi (const char *);
 
 %%
 
-[0-9]+		{ yylval.ival = atoi(yytext); return NUMBER; }  //צריך לשמור גם את הערך הסמנטי
+[0-9]+		{ yylval.ival = atoi(yytext); return NUMBER; }
 
 "equal"		{ return EQUAL; }
 "sum"		{ return SUM; }
 "append"	{ return APPEND; }
 "tail"		{ return TAIL; }
+"divide"	{ return DIVIDE; }
 
-"("		{ return '(';}
-")"		{ return ')';}
-"["		{ return '[';}
-"]"		{ return ']';}
-","		{ return ',';}
+"("		{ return '('; }
+")"		{ return ')'; }
+"["		{ return '['; }
+"]"		{ return ']'; }
+","		{ return ','; }
 
 [\t\r ]+  { /* skip white space */ }
 
-[\n]+       { line += yyleng; /* line += strlen(yytext); */ }
+[\n]+	{ line += yyleng; /* line += strlen(yytext); */ }
 
-.		{ fprintf (stderr, "line %d: unrecognized token %c(%x)\n", 
+.		{ printf("line %d: unrecognized token %c(%x)\n", 
                                line, yytext[0], yytext[0]); }
 
 %%
 
-int lexer()
-{
-	int token = yylex();
-	return token();
-}
-
-// move this code to another file
 int main (int argc, char **argv)
 {
    extern FILE *yyin;
    int token;
 
    if (argc != 2) {
-      fprintf(stderr, "Usage: %s <input file name>\n", argv [0]);
+      printf("Usage: %s <input file name>\n", argv[0]);
       exit (1);
    }
 
    yyin = fopen (argv[1], "r");
    
-   while (token = lexer()) != 0)
+   while ((token = yylex()) != 0)
    {
-		printf ("TOKEN  : %s\n", yylval.name);
+		printf("LEXEME: %s, ", yytext);
 		switch (token) {
 			case NUMBER:
 				printf("NUMBER: %d\n", yylval.ival);
@@ -83,7 +79,7 @@ int main (int argc, char **argv)
 			case DIVIDE:
 				printf("DIVIDE\n");
 				break;
-			//???
+			
 			case '(':
 				printf("(\n");
 				break;
@@ -99,11 +95,12 @@ int main (int argc, char **argv)
 			case ',':
 				printf(",\n");
 				break;
+			
 			default:
-				fprintf(stderr, "unrecognized character\n";
+				printf("ERROR: unrecognized character\n");
 				exit(1);
 		}
-		fclose(yyin);
-		exit(0);
-   }
+	}
+	fclose(yyin);
+	exit(0);
 }
