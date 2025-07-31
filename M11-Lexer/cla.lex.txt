@@ -51,8 +51,6 @@ extern int atoi (const char *);
 
 %option yylineno  // use this var!!!
 
-/* exclusive start conditions -- deal with two types of comments */ 
-%x COMMENT   ///??? unnecessary
 %x STAR_COMMENT
 
 %%
@@ -103,15 +101,7 @@ extern int atoi (const char *);
 [\t\r ]+  { /* skip white space */ }
 
 [\n]+       { line += yyleng; /* line += strlen(yytext); */ }
- 
-"//"       { BEGIN (COMMENT); }
-
-<COMMENT>.+ /* skip comment */
-<COMMENT>\n {  /* end of comment --> resume normal processing */
-                BEGIN (0);/* same as BEGIN(INITIAL); */  }
-
- /*  note: the flex manual contains slightly better code for handling
-   comments. see the section on start conditions */  				
+ 				
 "/*"  { BEGIN(STAR_COMMENT); }
 <STAR_COMMENT>{
 [^*\n]+		{ /* skip chars in comment */ }
