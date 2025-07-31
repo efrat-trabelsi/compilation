@@ -10,30 +10,25 @@
 
 %%
 
-// need to add here the attributes (synthesized and inherited)
-S:	ITEM	{ print(ITEM.val); }
+S:	ITEM	{ printf("%d\n", $1); }
 	';'
-L:	'[' ITEMLIST ']'	{ L.list = ITEMLIST.list; }
+L:	'[' ITEMLIST ']'	{ $$ = $2; }
 	';'
-//L:	TAIL '(' L1 ')'		{ L.list = tail(L1.list); }
-L:	TAIL '(' L ')'		{ L.list = tail(L.list); }
+L:	TAIL '(' L ')'		{ $$ = tail($3); }
 	';'
-//L:	APPEND '(' ITEM ',' L1 ')'	{ L.list = append(ITEM.val, L1.list); }
-L:	APPEND '(' ITEM ',' L ')'	{ L.list = append(ITEM.val, L.list); }
+L:	APPEND '(' ITEM ',' L ')'	{ $$ = append($3, $5); }
 	';'
-//L:	DIVIDE '(' ITEM ',' L1 ')'	{ L.list = divide(ITEM.val, L1.list); }
-L:	DIVIDE '(' ITEM ',' L ')'	{ L.list = divide(ITEM.val, L.list); }
+L:	DIVIDE '(' ITEM ',' L ')'	{ $$ = divide($3, $5); }
 	';'
-//ITEMLIST:	ITEMLIST1 ',' ITEM	{ ITEMLIST.list = append(ITEM.val, ITEMLIST1.list); }
-ITEMLIST:	ITEMLIST ',' ITEM	{ ITEMLIST.list = append(ITEM.val, ITEMLIST.list); }
+ITEMLIST:	ITEMLIST ',' ITEM	{ $$ = append($3, $1); }
 	';'
-ITEMLIST:	ITEM	{ ITEMLIST.list = makelist(ITEM.val); }
+ITEMLIST:	ITEM	{ $$ = makelist($1); }
 	';'
-ITEM:	SUM '(' L ')'	{ ITEM.val = sum(L.list); }
+ITEM:	SUM '(' L ')'	{ $$ = sum($3); }
 	';'
-ITEM:	EQUAL '(' L ')'	{ ITEM.val = equal(L.list); }
+ITEM:	EQUAL '(' L ')'	{ $$ = equal($3); }
 	';'
-ITEM:	NUMBER		{ ITEM.val = NUMBER.val; }
+ITEM:	NUMBER	{ $$ = $1; }
 	';'
 
 %%
