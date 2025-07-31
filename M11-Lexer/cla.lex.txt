@@ -1,19 +1,20 @@
 %{
-#define NUM 300
-#define ID 301
+#define INT_NUM 300
+#define FLOAT_NUM 301
+#define ID 302
 
 // keywords
-#define BREAK 302
-#define CASE 303
-#define DEFAULT 304
-#define ELSE 305
-#define FLOAT 306
-#define IF 307
-#define INPUT 308
-#define INT 309
-#define OUTPUT 310
-#define SWITCH 311
-#define WHILE 312
+#define BREAK 305
+#define CASE 306
+#define DEFAULT 307
+#define ELSE 308
+#define FLOAT 309
+#define IF 310
+#define INPUT 311
+#define INT 312
+#define OUTPUT 313
+#define SWITCH 314
+#define WHILE 315
 
 // symbols
 #define LEFT_PARENTHESIS 320
@@ -38,13 +39,15 @@ enum operator {PLUS, MINUS, MUL, DIV, EQ, NE, LT, GT, GE, LE };
 
 union {
   int ival;
+  float fval;
   char name [30];
   enum operator op;
 } yylval;
 
 #include <stdlib.h>
 
-extern int atoi (const char *);
+extern int atoi(const char *);
+extern double atof(const char *);
 %}
 
 %option noyywrap
@@ -55,7 +58,8 @@ extern int atoi (const char *);
 
 %%
 
-[0-9]+		{ yylval.ival = atoi(yytext); return NUM; }  //צריך לשמור גם את הערך הסמנטי
+[0-9]+			{ yylval.ival = atoi(yytext); return INT_NUM; }
+[0-9]+\.[0-9]+	{ yylval.fval = atof(yytext); return FLOAT_NUM; }
 
 "break"		{ return BREAK; }
 "case"		{ return CASE; }
@@ -110,36 +114,32 @@ extern int atoi (const char *);
 "*/"		{ BEGIN(0); }
 } // end STAR_COMMENT
 
-.		{ fprintf (stderr, "line %d: unrecognized token %c(%x)\n", 
+.		{ printf ("line %d: unrecognized token %c(%x)\n", 
                                line, yytext[0], yytext[0]); }
 
 %%
 
-int lexer()
-{
-	int token = yylex();
-	return token();
-}
-
-// move this code to another file
 int main (int argc, char **argv)
 {
    extern FILE *yyin;
    int token;
 
    if (argc != 2) {
-      fprintf(stderr, "Usage: %s <input file name>\n", argv [0]);
-      exit (1);
+      printf("Usage: %s <input file name>\n", argv[0]);
+      exit(1);
    }
 
-   yyin = fopen (argv[1], "r");
+   yyin = fopen(argv[1], "r");
    
    while (token = lexer()) != 0)
    {
 		printf ("TOKEN  : %s\n", yylval.name);
 		switch (token) {
-			case NUM:
-				printf("NUMBER: %d\n", yylval.ival);
+			case INT_NUM:
+				printf("INTEGER NUMBER: %d\n", yylval.ival);
+				break;
+			case FLOAT_NUM:
+				printf("FLOAT NUMBER: %f\n", yylval.fval);
 				break;
 			case ID:
 				printf("ID: %s\n", yylval.name);
@@ -191,7 +191,7 @@ int main (int argc, char **argv)
 				printf("");
 				break;
 			default:
-				fprintf(stderr, "unrecognized character\n";
+				printf("ERROR: unrecognized character\n");
 				exit(1);
 		}
 		fclose(yyin);
