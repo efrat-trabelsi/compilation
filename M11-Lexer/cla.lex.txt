@@ -127,6 +127,13 @@ const char* get_op_name(enum operator op) {
         case GT: return "GT";
         case GE: return "GE";
         case LE: return "LE";
+		
+		case PLUS: return "PLUS";
+		case MINUS: return "MINUS";
+		
+		case MUL: return "MUL";
+		case DIV: return "DIV";
+		
         default: return "UNKNOWN";
     }
 }
