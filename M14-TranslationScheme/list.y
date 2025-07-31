@@ -1,4 +1,4 @@
-%code {
+%{
 
 #include <stdio.h>
 
@@ -12,7 +12,7 @@ void* makelist(int n) { return NULL; }
 int sum(void* list) { return 0; }
 int equal(void* list) { return 1; }
 
-}
+%}
 
 %union {
     int ival;
@@ -32,25 +32,25 @@ int equal(void* list) { return 1; }
 %%
 
 S:	ITEM	{ printf("%d\n", $1); }
-	';'
+	;
 L:	'[' ITEMLIST ']'	{ $$ = $2; }
-	';'
+	;
 L:	TAIL '(' L ')'		{ $$ = tail($3); }
-	';'
+	;
 L:	APPEND '(' ITEM ',' L ')'	{ $$ = append($3, $5); }
-	';'
+	;
 L:	DIVIDE '(' ITEM ',' L ')'	{ $$ = divide($3, $5); }
-	';'
+	;
 ITEMLIST:	ITEMLIST ',' ITEM	{ $$ = append($3, $1); }
-	';'
+	;
 ITEMLIST:	ITEM	{ $$ = makelist($1); }
-	';'
+	;
 ITEM:	SUM '(' L ')'	{ $$ = sum($3); }
-	';'
+	;
 ITEM:	EQUAL '(' L ')'	{ $$ = equal($3); }
-	';'
+	;
 ITEM:	NUMBER	{ $$ = $1; }
-	';'
+	;
 
 %%
 
