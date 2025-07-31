@@ -23,19 +23,13 @@
 %token AND
 %token NOT
 %token CAST
-…
-… (Define all terminals in the grammar.
-Symbols such as +, –, (, ) don’t need to be
-defined).
 
 %%
 
-//זה בעצם סכימת תרגום?
-// need to add here the attributes (synthesized and inherited)
 program: declarations stmt_block
 		;
 declarations: declarations declaration
-			| epsilon
+			| %empty
 			;
 declaration: idlist ':' type ';'
 			;
@@ -67,14 +61,14 @@ while_stmt: WHILE '(' boolexpr ')' stmt
 switch_stmt: SWITCH '(' expression ')' '{' caselist DEFAULT ':' stmtlist '}'
 			;
 caselist: caselist CASE NUM ':' stmtlist
-		| epsilon
+		| %empty
 		;
 break_stmt: BREAK ';'
 			;
 stmt_block: '{' stmtlist '}'
 			;
 stmtlist: stmtlist stmt
-		| epsilon
+		| %empty
 		;
 boolexpr: boolexpr OR boolterm
 		| boolterm
@@ -96,3 +90,5 @@ factor: '(' expression ')'
 	  | ID
 	  | NUM
 	  ;
+
+%%
