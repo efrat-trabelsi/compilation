@@ -42,6 +42,7 @@ union {
   float fval;
   char name [30];
   enum operator op;
+  int typ;
 } yylval;
 
 #include <stdlib.h>
@@ -73,7 +74,6 @@ extern double atof(const char *);
 "switch"	{ return SWITCH; }
 "while"		{ return WHILE;}
 
-//???
 "("		{ return LEFT_PARENTHESIS;}		// { return '(';}
 ")"		{ return RIGHT_PARENTHESIS;}	// { return ')';}
 "{"		{ return LEFT_BRACKET;}			// { return '{';}
@@ -82,8 +82,6 @@ extern double atof(const char *);
 ":"		{ return COLON;}				// { return ':';}
 ";"		{ return SEMICOLON;}			// { return ';';}
 "="		{ return EQUAL;}				// { return '=';}
-
-[a-zA-Z][a-zA-Z0-9]*	{ strcpy(yylval.name, yytext); return ID; }
 
 "=="	{ yylval.op = EQ; return RELOP; }
 "!="	{ yylval.op = NE; return RELOP; }
@@ -99,8 +97,10 @@ extern double atof(const char *);
 "&&"	{ return AND; }
 "!"		{ return NOT; }
 
-"cast<int>"		{ yylval. = ??; return CAST; }  //??? how to save the semantic value?
-"cast<float>"	{ yylval. = ??; return CAST; }
+"cast<int>"		{ yylval.typ = INT; return CAST; }
+"cast<float>"	{ yylval.typ = FLOAT; return CAST; }
+
+[a-zA-Z][a-zA-Z0-9]*	{ strcpy(yylval.name, yytext); return ID; }
 
 [\t\r ]+  { /* skip white space */ }
 
@@ -119,7 +119,19 @@ extern double atof(const char *);
 
 %%
 
-int main (int argc, char **argv)
+const char* get_op_name(enum operator op) {
+    switch(op) {
+        case EQ: return "EQ";
+        case NE: return "NE";
+        case LT: return "LT";
+        case GT: return "GT";
+        case GE: return "GE";
+        case LE: return "LE";
+        default: return "UNKNOWN";
+    }
+}
+
+int main(int argc, char **argv)
 {
    extern FILE *yyin;
    int token;
@@ -131,71 +143,109 @@ int main (int argc, char **argv)
 
    yyin = fopen(argv[1], "r");
    
-   while (token = lexer()) != 0)
+   printf("token\t\tlexeme\t\tattribute\n");
+   printf("-----\t\t------\t\t---------\n");
+   
+   while ((token = yylex()) != 0)
    {
-		printf ("TOKEN  : %s\n", yylval.name);
-		switch (token) {
+		switch(token) {
 			case INT_NUM:
-				printf("INTEGER NUMBER: %d\n", yylval.ival);
+				printf("INT_NUM %d\n", yylval.ival);
 				break;
 			case FLOAT_NUM:
-				printf("FLOAT NUMBER: %f\n", yylval.fval);
+				printf("FLOAT_NUM %f\n", yylval.fval);
 				break;
 			case ID:
-				printf("ID: %s\n", yylval.name);
+				printf("ID\t\t%s\t\t%s\n", yytext, yylval.name);
 				break;
 			case BREAK:
-				printf("BREAK\n");
+				printf("BREAK\t\t%s\n", yytext);
 				break;
 			case CASE:
-				printf("CASE\n");
+				printf("CASE\t\t%s\n", yytext);
 				break;
 			case DEFAULT:
-				printf("DEFAULT\n");
+				printf("DEFAULT\t\t%s\n", yytext);
 				break;
 			case ELSE:
-				printf("ELSE\n");
+				printf("ELSE\t\t%s\n", yytext);
 				break;
 			case FLOAT:
-				printf("FLOAT\n");
+				printf("FLOAT\t\t%s\n", yytext);
 				break;
 			case IF:
-				printf("IF\n");
+				printf("IF\t\t%s\n", yytext);
 				break;
 			case INPUT:
-				printf("INPUT\n");
+				printf("INPUT\t\t%s\n", yytext);
 				break;
 			case INT:
-				printf("INT\n");
+				printf("INT\t\t%s\n", yytext);
 				break;
 			case OUTPUT:
-				printf("OUTPUT\n");
+				printf("OUTPUT\t\t%s\n", yytext);
 				break;
 			case SWITCH:
-				printf("SWITCH\n");
+				printf("SWITCH\t\t%s\n", yytext);
 				break;
 			case WHILE:
-				printf("WHILE\n");
+				printf("WHILE\t\t%s\n", yytext);
+				break;
+
+			case LEFT_PARENTHESIS:
+				printf("LEFT_PARENTHESIS\t\t%s\n", yytext);
+				break;
+			case RIGHT_PARENTHESIS:
+				printf("RIGHT_PARENTHESIS\t\t%s\n", yytext);
+				break;
+			case LEFT_BRACKET:
+				printf("LEFT_BRACKET\t\t%s\n", yytext);
+				break;
+			case RIGHT_BRACKET:
+				printf("RIGHT_BRACKET\t\t%s\n", yytext);
+				break;
+			case COMMA:
+				printf("COMMA\t\t%s\n", yytext);
+				break;
+			case COLON:
+				printf("COLON\t\t%s\n", yytext);
+				break;
+			case SEMICOLON:
+				printf("SEMICOLON\t\t%s\n", yytext);
+				break;
+			case EQUAL:
+				printf("EQUAL\t\t%s\n", yytext);
 				break;
 			
 			case RELOP:
-				printf("RELOP: %s\n", yylval.op);  //check it!
+				printf("RELOP\t\t%s\t\t%s\n", yytext, get_op_name(yylval.op));
 				break;
-			case :
-				printf("");
+			case ADDOP:
+				printf("ADDOP\t\t%s\t\t%s\n", yytext, get_op_name(yylval.op));
 				break;
-			case :
-				printf("");
+			case MULOP:
+				printf("MULOP\t\t%s\t\t%s\n", yytext, get_op_name(yylval.op));
 				break;
-			case :
-				printf("");
+			case OR:
+				printf("OR\t\t%s\n", yytext);
 				break;
+			case AND:
+				printf("AND\t\t%s\n", yytext);
+				break;
+			case NOT:
+				printf("NOT\t\t%s\n", yytext);
+				break;
+			case CAST:
+				const char *typeName = (yylval.typ == INT) ? "INT" : "FLOAT";
+				printf("CAST\t\t%s\t\t%s\n", yytext, typeName);
+				break;
+			
 			default:
 				printf("ERROR: unrecognized character\n");
 				exit(1);
 		}
-		fclose(yyin);
-		exit(0);
-   }
+	}
+	fclose(yyin);
+	exit(0);
 }
 
