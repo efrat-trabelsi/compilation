@@ -34,7 +34,7 @@
 #define NOT 335
 #define CAST 336
 
-enum operator  {PLUS, MINUS, MUL, DIV };
+enum operator {PLUS, MINUS, MUL, DIV, EQ, NE, LT, GT, GE, LE };
 
 union {
   int ival;
@@ -71,24 +71,24 @@ extern int atoi (const char *);
 "switch"	{ return SWITCH; }
 "while"		{ return WHILE;}
 
-//??? which way is better
-'('		{ return LEFT_PARENTHESIS;}		// { return '(';}
-')'		{ return RIGHT_PARENTHESIS;}	// { return ')';}
-'{'		{ return LEFT_BRACKET;}			// { return '{';}
-'}'		{ return RIGHT_BRACKET;}		// { return '}';}
-','		{ return COMMA;}				// { return ',';}
-':'		{ return COLON;}				// { return ':';}
-';'		{ return SEMICOLON;}			// { return ';';}
-'='		{ return EQUAL;}				// { return '=';}
+//???
+"("		{ return LEFT_PARENTHESIS;}		// { return '(';}
+")"		{ return RIGHT_PARENTHESIS;}	// { return ')';}
+"{"		{ return LEFT_BRACKET;}			// { return '{';}
+"}"		{ return RIGHT_BRACKET;}		// { return '}';}
+","		{ return COMMA;}				// { return ',';}
+":"		{ return COLON;}				// { return ':';}
+";"		{ return SEMICOLON;}			// { return ';';}
+"="		{ return EQUAL;}				// { return '=';}
 
-[a-zA-Z][a-zA-Z0-9]*	{ strcpy (yylval.name, yytext); return ID; }
+[a-zA-Z][a-zA-Z0-9]*	{ strcpy(yylval.name, yytext); return ID; }
 
-"=="	{ yylval. = ??; return RELOP; } //??? add operators as semantic value?
-"!="	{ yylval. = ??; return RELOP; }
-"<"		{ yylval. = ??; return RELOP; }
-">"		{ yylval. = ??; return RELOP; }
-">="	{ yylval. = ??; return RELOP; }
-"<="	{ yylval. = ??; return RELOP; }
+"=="	{ yylval.op = EQ; return RELOP; }
+"!="	{ yylval.op = NE; return RELOP; }
+"<"		{ yylval.op = LT; return RELOP; }
+">"		{ yylval.op = GT; return RELOP; }
+">="	{ yylval.op = GE; return RELOP; }
+"<="	{ yylval.op = LE; return RELOP; }
 "+"		{ yylval.op = PLUS;	return ADDOP; }
 "-"		{ yylval.op = MINUS; return ADDOP; }
 "*"		{ yylval.op = MUL; return MULOP; }
