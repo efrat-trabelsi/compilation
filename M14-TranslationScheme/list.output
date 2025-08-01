@@ -1,0 +1,346 @@
+Grammar
+
+    0 $accept: S $end
+
+    1 S: ITEM
+
+    2 L: '[' ITEMLIST ']'
+    3  | TAIL '(' L ')'
+    4  | APPEND '(' ITEM ',' L ')'
+    5  | DIVIDE '(' ITEM ',' L ')'
+
+    6 ITEMLIST: ITEMLIST ',' ITEM
+    7         | ITEM
+
+    8 ITEM: SUM '(' L ')'
+    9     | EQUAL '(' L ')'
+   10     | NUMBER
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    '(' (40) 3 4 5 8 9
+    ')' (41) 3 4 5 8 9
+    ',' (44) 4 5 6
+    '[' (91) 2
+    ']' (93) 2
+    error (256)
+    NUMBER <ival> (258) 10
+    EQUAL (259) 9
+    SUM (260) 8
+    APPEND (261) 4
+    TAIL (262) 3
+    DIVIDE (263) 5
+
+
+Nonterminals, with rules where they appear
+
+    $accept (14)
+        on left: 0
+    S (15)
+        on left: 1
+        on right: 0
+    L <lst> (16)
+        on left: 2 3 4 5
+        on right: 3 4 5 8 9
+    ITEMLIST <lst> (17)
+        on left: 6 7
+        on right: 2 6
+    ITEM <ival> (18)
+        on left: 8 9 10
+        on right: 1 4 5 6 7
+
+
+State 0
+
+    0 $accept: • S $end
+
+    NUMBER  shift, and go to state 1
+    EQUAL   shift, and go to state 2
+    SUM     shift, and go to state 3
+
+    S     go to state 4
+    ITEM  go to state 5
+
+
+State 1
+
+   10 ITEM: NUMBER •
+
+    $default  reduce using rule 10 (ITEM)
+
+
+State 2
+
+    9 ITEM: EQUAL • '(' L ')'
+
+    '('  shift, and go to state 6
+
+
+State 3
+
+    8 ITEM: SUM • '(' L ')'
+
+    '('  shift, and go to state 7
+
+
+State 4
+
+    0 $accept: S • $end
+
+    $end  shift, and go to state 8
+
+
+State 5
+
+    1 S: ITEM •
+
+    $default  reduce using rule 1 (S)
+
+
+State 6
+
+    9 ITEM: EQUAL '(' • L ')'
+
+    APPEND  shift, and go to state 9
+    TAIL    shift, and go to state 10
+    DIVIDE  shift, and go to state 11
+    '['     shift, and go to state 12
+
+    L  go to state 13
+
+
+State 7
+
+    8 ITEM: SUM '(' • L ')'
+
+    APPEND  shift, and go to state 9
+    TAIL    shift, and go to state 10
+    DIVIDE  shift, and go to state 11
+    '['     shift, and go to state 12
+
+    L  go to state 14
+
+
+State 8
+
+    0 $accept: S $end •
+
+    $default  accept
+
+
+State 9
+
+    4 L: APPEND • '(' ITEM ',' L ')'
+
+    '('  shift, and go to state 15
+
+
+State 10
+
+    3 L: TAIL • '(' L ')'
+
+    '('  shift, and go to state 16
+
+
+State 11
+
+    5 L: DIVIDE • '(' ITEM ',' L ')'
+
+    '('  shift, and go to state 17
+
+
+State 12
+
+    2 L: '[' • ITEMLIST ']'
+
+    NUMBER  shift, and go to state 1
+    EQUAL   shift, and go to state 2
+    SUM     shift, and go to state 3
+
+    ITEMLIST  go to state 18
+    ITEM      go to state 19
+
+
+State 13
+
+    9 ITEM: EQUAL '(' L • ')'
+
+    ')'  shift, and go to state 20
+
+
+State 14
+
+    8 ITEM: SUM '(' L • ')'
+
+    ')'  shift, and go to state 21
+
+
+State 15
+
+    4 L: APPEND '(' • ITEM ',' L ')'
+
+    NUMBER  shift, and go to state 1
+    EQUAL   shift, and go to state 2
+    SUM     shift, and go to state 3
+
+    ITEM  go to state 22
+
+
+State 16
+
+    3 L: TAIL '(' • L ')'
+
+    APPEND  shift, and go to state 9
+    TAIL    shift, and go to state 10
+    DIVIDE  shift, and go to state 11
+    '['     shift, and go to state 12
+
+    L  go to state 23
+
+
+State 17
+
+    5 L: DIVIDE '(' • ITEM ',' L ')'
+
+    NUMBER  shift, and go to state 1
+    EQUAL   shift, and go to state 2
+    SUM     shift, and go to state 3
+
+    ITEM  go to state 24
+
+
+State 18
+
+    2 L: '[' ITEMLIST • ']'
+    6 ITEMLIST: ITEMLIST • ',' ITEM
+
+    ']'  shift, and go to state 25
+    ','  shift, and go to state 26
+
+
+State 19
+
+    7 ITEMLIST: ITEM •
+
+    $default  reduce using rule 7 (ITEMLIST)
+
+
+State 20
+
+    9 ITEM: EQUAL '(' L ')' •
+
+    $default  reduce using rule 9 (ITEM)
+
+
+State 21
+
+    8 ITEM: SUM '(' L ')' •
+
+    $default  reduce using rule 8 (ITEM)
+
+
+State 22
+
+    4 L: APPEND '(' ITEM • ',' L ')'
+
+    ','  shift, and go to state 27
+
+
+State 23
+
+    3 L: TAIL '(' L • ')'
+
+    ')'  shift, and go to state 28
+
+
+State 24
+
+    5 L: DIVIDE '(' ITEM • ',' L ')'
+
+    ','  shift, and go to state 29
+
+
+State 25
+
+    2 L: '[' ITEMLIST ']' •
+
+    $default  reduce using rule 2 (L)
+
+
+State 26
+
+    6 ITEMLIST: ITEMLIST ',' • ITEM
+
+    NUMBER  shift, and go to state 1
+    EQUAL   shift, and go to state 2
+    SUM     shift, and go to state 3
+
+    ITEM  go to state 30
+
+
+State 27
+
+    4 L: APPEND '(' ITEM ',' • L ')'
+
+    APPEND  shift, and go to state 9
+    TAIL    shift, and go to state 10
+    DIVIDE  shift, and go to state 11
+    '['     shift, and go to state 12
+
+    L  go to state 31
+
+
+State 28
+
+    3 L: TAIL '(' L ')' •
+
+    $default  reduce using rule 3 (L)
+
+
+State 29
+
+    5 L: DIVIDE '(' ITEM ',' • L ')'
+
+    APPEND  shift, and go to state 9
+    TAIL    shift, and go to state 10
+    DIVIDE  shift, and go to state 11
+    '['     shift, and go to state 12
+
+    L  go to state 32
+
+
+State 30
+
+    6 ITEMLIST: ITEMLIST ',' ITEM •
+
+    $default  reduce using rule 6 (ITEMLIST)
+
+
+State 31
+
+    4 L: APPEND '(' ITEM ',' L • ')'
+
+    ')'  shift, and go to state 33
+
+
+State 32
+
+    5 L: DIVIDE '(' ITEM ',' L • ')'
+
+    ')'  shift, and go to state 34
+
+
+State 33
+
+    4 L: APPEND '(' ITEM ',' L ')' •
+
+    $default  reduce using rule 4 (L)
+
+
+State 34
+
+    5 L: DIVIDE '(' ITEM ',' L ')' •
+
+    $default  reduce using rule 5 (L)
