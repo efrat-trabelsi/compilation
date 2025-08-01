@@ -1,0 +1,33 @@
+%{
+#include "list.tab.h"
+
+int line = 0;
+%}
+
+%option noyywrap
+%option yylineno
+
+%%
+
+[0-9]+		{ yylval.ival = atoi(yytext); return NUMBER; }
+
+"equal"		{ return EQUAL; }
+"sum"		{ return SUM; }
+"append"	{ return APPEND; }
+"tail"		{ return TAIL; }
+"divide"	{ return DIVIDE; }
+
+"("		{ return '('; }
+")"		{ return ')'; }
+"["		{ return '['; }
+"]"		{ return ']'; }
+","		{ return ','; }
+
+[\t\r ]+  { /* skip white space */ }
+
+[\n]+	{ line += yyleng; /* line += strlen(yytext); */ }
+
+.		{ printf("line %d: unrecognized token %c(%x)\n", 
+                               line, yytext[0], yytext[0]); }
+
+%%
