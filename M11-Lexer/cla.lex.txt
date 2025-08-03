@@ -16,16 +16,6 @@
 #define SWITCH 314
 #define WHILE 315
 
-// symbols
-#define LEFT_PARENTHESIS 320
-#define RIGHT_PARENTHESIS 321
-#define LEFT_BRACKET 322
-#define RIGHT_BRACKET 323
-#define COMMA 324
-#define COLON 325
-#define SEMICOLON 326
-#define EQUAL 327
-
 // operators
 #define RELOP 330
 #define ADDOP 331
@@ -74,14 +64,14 @@ extern double atof(const char *);
 "switch"	{ return SWITCH; }
 "while"		{ return WHILE;}
 
-"("		{ return LEFT_PARENTHESIS;}		// { return '(';}
-")"		{ return RIGHT_PARENTHESIS;}	// { return ')';}
-"{"		{ return LEFT_BRACKET;}			// { return '{';}
-"}"		{ return RIGHT_BRACKET;}		// { return '}';}
-","		{ return COMMA;}				// { return ',';}
-":"		{ return COLON;}				// { return ':';}
-";"		{ return SEMICOLON;}			// { return ';';}
-"="		{ return EQUAL;}				// { return '=';}
+"("		{ return '('; }
+")"		{ return ')'; }
+"{"		{ return '{'; }
+"}"		{ return '}'; }
+","		{ return ','; }
+":"		{ return ':'; }
+";"		{ return ';'; }
+"="		{ return '='; }
 
 "=="	{ yylval.op = EQ; return RELOP; }
 "!="	{ yylval.op = NE; return RELOP; }
@@ -165,6 +155,7 @@ int main(int argc, char **argv)
 			case ID:
 				printf("ID\t\t%s\t\t%s\n", yytext, yylval.name);
 				break;
+			
 			case BREAK:
 				printf("BREAK\t\t%s\n", yytext);
 				break;
@@ -199,29 +190,29 @@ int main(int argc, char **argv)
 				printf("WHILE\t\t%s\n", yytext);
 				break;
 
-			case LEFT_PARENTHESIS:
-				printf("LEFT_PARENTHESIS\t\t%s\n", yytext);
+			case '(':
+				printf("(\t\t%s\n", yytext);
 				break;
-			case RIGHT_PARENTHESIS:
-				printf("RIGHT_PARENTHESIS\t\t%s\n", yytext);
+			case ')':
+				printf(")\t\t%s\n", yytext);
 				break;
-			case LEFT_BRACKET:
-				printf("LEFT_BRACKET\t\t%s\n", yytext);
+			case '{':
+				printf("{\t\t%s\n", yytext);
 				break;
-			case RIGHT_BRACKET:
-				printf("RIGHT_BRACKET\t\t%s\n", yytext);
+			case '}':
+				printf("}\t\t%s\n", yytext);
 				break;
-			case COMMA:
-				printf("COMMA\t\t%s\n", yytext);
+			case ',':
+				printf(",\t\t%s\n", yytext);
 				break;
-			case COLON:
-				printf("COLON\t\t%s\n", yytext);
+			case ':':
+				printf(":\t\t%s\n", yytext);
 				break;
-			case SEMICOLON:
-				printf("SEMICOLON\t\t%s\n", yytext);
+			case ';':
+				printf(";\t\t%s\n", yytext);
 				break;
-			case EQUAL:
-				printf("EQUAL\t\t%s\n", yytext);
+			case '=':
+				printf("=\t\t%s\n", yytext);
 				break;
 			
 			case RELOP:
