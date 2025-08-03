@@ -39,11 +39,13 @@ union {
 
 extern int atoi(const char *);
 extern double atof(const char *);
+
+int line = 0;
 %}
 
 %option noyywrap
 
-%option yylineno  // use this var!!!
+%option yylineno
 
 %x STAR_COMMENT
 
