@@ -160,7 +160,7 @@ int main(int argc, char **argv)
 	int token;
 	char output_filename[256];
 	char *ext_start ;
-	const char *student_signature = "CPL Lexical Analyzer - [Your Name Here]\n\n";
+	const char *student_signature = "CPL Lexical Analyzer - Efrat Trabelsi\n\n";
 	
 	// Print student signature
 	fputs(student_signature, stderr);
