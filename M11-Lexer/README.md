@@ -1,44 +1,44 @@
 # CPL Lexical Analyzer (CLA)
 
-מנתח לקסיקלי עבור שפת CPL (Compiler Project Language).
+Lexical analyzer for CPL (Compiler Project Language).
 
-## דרישות מערכת
+## System Requirements
 - flex (GNU Flex lexical analyzer generator)
 - gcc (GNU Compiler Collection)
 - Linux WSL
 
-## הרצת המתרגם
+## Running the Compiler
 
-### בנייה והרצה:
+### Build and Run:
 ```bash
-# יצירת קובץ C מקובץ flex
+# Generate C file from flex file
 flex cla.lex.txt
 
-# קימפול התוכנית
+# Compile the program
 gcc -o cla lex.yy.c
 
-# הרצת המנתח הלקסיקלי
+# Run the lexical analyzer
 ./cla <filename>.ou
 ```
 
-### דוגמה:
+### Example:
 ```bash
 flex cla.lex.txt
 gcc -o cla lex.yy.c
 ./cla cpl-test.ou
 ```
 
-## קבצים
+## Files
 
-### קבצי מקור:
-- `cla.lex.txt` - קובץ הכללים עבור flex
+### Source Files:
+- `cla.lex.txt` - Rules file for flex
 
-### קבצי בדיקה:
-- `cpl-test.ou` - דוגמה לקלט תקין
+### Test Files:
+- `cpl-test.ou` - Example of valid input
 
-## פורמט הפלט
+## Output Format
 
-הפלט נשמר בקובץ עם סיומת `.tok`:
+Output is saved to a file with `.tok` extension:
 ```
 token        lexeme        attribute
 -----        ------        ---------
@@ -49,16 +49,16 @@ ID           b             b
 ...
 ```
 
-## אסימונים נתמכים
-- **מילים שמורות:** `break`, `case`, `default`, `else`, `float`, `if`, `input`, `int`, `output`, `switch`, `while`
-- **אופרטורים:** `+`, `-`, `*`, `/`, `==`, `!=`, `<`, `>`, `>=`, `<=`, `||`, `&&`, `!`
-- **המרות:** `cast<int>`, `cast<float>`
-- **מזהים:** אותיות ומספרים המתחילים באות
-- **מספרים:** שלמים וממשיים
-- **סימבולים:** `()`, `{}`, `,`, `:`, `;`, `=`
-- **הערות:** `/* ... */` (ללא קינון)
+## Supported Tokens
+- **Reserved Words:** `break`, `case`, `default`, `else`, `float`, `if`, `input`, `int`, `output`, `switch`, `while`
+- **Operators:** `+`, `-`, `*`, `/`, `==`, `!=`, `<`, `>`, `>=`, `<=`, `||`, `&&`, `!`
+- **Casts:** `cast<int>`, `cast<float>`
+- **Identifiers:** Letters and numbers starting with a letter
+- **Numbers:** Integers and floats
+- **Symbols:** `()`, `{}`, `,`, `:`, `;`, `=`
+- **Comments:** `/* ... */` (no nesting)
 
-## ניקוי קבצים
+## Clean Files
 ```bash
 rm lex.yy.c cla *.tok
 ```
