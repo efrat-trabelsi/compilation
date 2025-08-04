@@ -1,0 +1,39 @@
+CPL Lexical Analyzer - Efrat Trabelsi
+
+token		lexeme		attribute
+-----		------		---------
+ID		a		a
+,		,
+ID		b		b
+:		:
+FLOAT		float
+;		;
+{		{
+INPUT		input
+(		(
+ID		a		a
+)		)
+;		;
+INPUT		input
+(		(
+ID		b		b
+)		)
+;		;
+IF		if
+(		(
+ID		a		a
+RELOP		<		LT
+ID		b		b
+)		)
+OUTPUT		output
+(		(
+ID		a		a
+)		)
+;		;
+ELSE		else
+OUTPUT		output
+(		(
+ID		b		b
+)		)
+;		;
+}		}
