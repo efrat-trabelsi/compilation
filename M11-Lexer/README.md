@@ -25,7 +25,7 @@ gcc -o cla lex.yy.c
 ```bash
 flex cla.lex.txt
 gcc -o cla lex.yy.c
-./cla cpl-program.ou
+./cla cpl-test.ou
 ```
 
 ## קבצים
@@ -34,8 +34,7 @@ gcc -o cla lex.yy.c
 - `cla.lex.txt` - קובץ הכללים עבור flex
 
 ### קבצי בדיקה:
-- `test.ou` - דוגמה לקלט תקין
-- `error_test.ou` - דוגמה עם שגיאות לקסיקליות
+- `cpl-test.ou` - דוגמה לקלט תקין
 
 ## פורמט הפלט
 
@@ -44,9 +43,9 @@ gcc -o cla lex.yy.c
 token        lexeme        attribute
 -----        ------        ---------
 ID           a             a
-COMMA        ,
+,	         ,
 ID           b             b
-COLON        :
+:	         :
 ...
 ```
 
