@@ -1,4 +1,8 @@
 %{
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #define INT_NUM 300
 #define FLOAT_NUM 301
 #define ID 302
@@ -30,21 +34,20 @@ enum operator {PLUS, MINUS, MUL, DIV, EQ, NE, LT, GT, GE, LE };
 union {
   int ival;
   float fval;
-  char name [30];
+  char name[30];
   enum operator op;
   int typ;
 } yylval;
 
-#include <stdlib.h>
-
 extern int atoi(const char *);
 extern double atof(const char *);
 
-int line = 0;
+int line = 1;
+FILE *output_file;
+
 %}
 
 %option noyywrap
-
 %option yylineno
 
 %x STAR_COMMENT
@@ -64,7 +67,7 @@ int line = 0;
 "int"		{ return INT; }
 "output"	{ return OUTPUT; }
 "switch"	{ return SWITCH; }
-"while"		{ return WHILE;}
+"while"		{ return WHILE; }
 
 "("		{ return '('; }
 ")"		{ return ')'; }
@@ -81,7 +84,7 @@ int line = 0;
 ">"		{ yylval.op = GT; return RELOP; }
 ">="	{ yylval.op = GE; return RELOP; }
 "<="	{ yylval.op = LE; return RELOP; }
-"+"		{ yylval.op = PLUS;	return ADDOP; }
+"+"		{ yylval.op = PLUS; return ADDOP; }
 "-"		{ yylval.op = MINUS; return ADDOP; }
 "*"		{ yylval.op = MUL; return MULOP; }
 "/"		{ yylval.op = DIV; return MULOP; }
@@ -106,19 +109,21 @@ int line = 0;
 "*/"		{ BEGIN(0); }
 } // end STAR_COMMENT
 
-.		{ printf ("line %d: unrecognized token %c(%x)\n", 
-                               line, yytext[0], yytext[0]); }
+.		{ 
+    fprintf(stderr, "line %d: unrecognized token %c(%x)\n", 
+            line, yytext[0], yytext[0]); 
+}
 
 %%
 
 const char* get_op_name(enum operator op) {
     switch(op) {
-        case EQ: return "EQ";
-        case NE: return "NE";
-        case LT: return "LT";
-        case GT: return "GT";
-        case GE: return "GE";
-        case LE: return "LE";
+		case EQ: return "EQ";
+		case NE: return "NE";
+		case LT: return "LT";
+		case GT: return "GT";
+		case GE: return "GE";
+		case LE: return "LE";
 		
 		case PLUS: return "PLUS";
 		case MINUS: return "MINUS";
@@ -126,126 +131,191 @@ const char* get_op_name(enum operator op) {
 		case MUL: return "MUL";
 		case DIV: return "DIV";
 		
-        default: return "UNKNOWN";
+		default: return "UNKNOWN";
     }
+}
+
+void print_token_header()
+{
+	printf("token\t\tlexeme\t\tattribute\n");
+	printf("-----\t\t------\t\t---------\n");
+	fprintf(output_file, "token\t\tlexeme\t\tattribute\n");
+	fprintf(output_file, "-----\t\t------\t\t---------\n");
+}
+
+void print_token_info(const char* token_name, const char* lexeme, const char* attribute)
+{
+	if (attribute) {
+		printf("%s\t\t%s\t\t%s\n", token_name, lexeme, attribute);
+		fprintf(output_file, "%s\t\t%s\t\t%s\n", token_name, lexeme, attribute);
+	} else {
+		printf("%s\t\t%s\n", token_name, lexeme);
+		fprintf(output_file, "%s\t\t%s\n", token_name, lexeme);
+	}
 }
 
 int main(int argc, char **argv)
 {
-   extern FILE *yyin;
-   int token;
+	extern FILE *yyin;
+	int token;
+	char output_filename[256];
+	char *ext_start ;
+	char *student_signature = "CPL Lexical Analyzer - [Your Name Here]\n\n";
+	
+	// Print student signature
+	fputs(student_signature, stderr);
+	
+	if (argc != 2) {
+		fprintf(stderr, "Usage: %s <input file name>\n", argv[0]);
+		exit(1);
+	}
 
-   if (argc != 2) {
-      printf("Usage: %s <input file name>\n", argv[0]);
-      exit(1);
-   }
-
-   yyin = fopen(argv[1], "r");
-   
-   printf("token\t\tlexeme\t\tattribute\n");
-   printf("-----\t\t------\t\t---------\n");
-   
-   while ((token = yylex()) != 0)
-   {
+	// Check file extension
+	if (strlen(argv[1]) < 4 || strcmp(argv[1] + strlen(argv[1]) - 3, ".ou") != 0) {
+		fprintf(stderr, "Error: Input file must have .ou extension\n");
+		exit(1);
+	}
+	
+	// Open input file
+	yyin = fopen(argv[1], "r");
+	if (!yyin) {
+		fprintf(stderr, "Error: Cannot open input file %s\n", argv[1]);
+		exit(1);
+	}
+	
+	// Create output filename with .tok extension
+	strcpy(output_filename, argv[1]);
+	ext_start = strrchr(output_filename, '.');
+	if (ext_start) {
+		strcpy(ext_start, ".tok");
+	}
+	
+	// Open output file
+	output_file = fopen(output_filename, "w");
+	if (!output_file) {
+		fprintf(stderr, "Error: Cannot create output file %s\n", output_filename);
+		fclose(yyin);
+		exit(1);
+	}
+	
+	// Print signature to output file
+	fputs(student_signature, stderr);
+	
+	print_token_header();
+	
+	while ((token = yylex()) != 0) {
 		switch(token) {
 			case INT_NUM:
-				printf("INT_NUM %d\n", yylval.ival);
+				{
+					char attr[20];
+					sprintf(attr, "%d", yylval.ival);
+					print_token_info("INT_NUM", yytext, attr);
+				}
 				break;
 			case FLOAT_NUM:
-				printf("FLOAT_NUM %f\n", yylval.fval);
+				{
+					char attr[20];
+					sprintf(attr, "%f", yylval.fval);
+					print_token_info("FLOAT_NUM", yytext, attr);
+				}
 				break;
 			case ID:
-				printf("ID\t\t%s\t\t%s\n", yytext, yylval.name);
+				print_token_info("ID", yytext, yylval.name);
 				break;
 			
 			case BREAK:
-				printf("BREAK\t\t%s\n", yytext);
+				print_token_info("BREAK", yytext, NULL);
 				break;
 			case CASE:
-				printf("CASE\t\t%s\n", yytext);
+				print_token_info("CASE", yytext, NULL);
 				break;
 			case DEFAULT:
-				printf("DEFAULT\t\t%s\n", yytext);
+				print_token_info("DEFAULT", yytext, NULL);
 				break;
 			case ELSE:
-				printf("ELSE\t\t%s\n", yytext);
+				print_token_info("ELSE", yytext, NULL);
 				break;
 			case FLOAT:
-				printf("FLOAT\t\t%s\n", yytext);
+				print_token_info("FLOAT", yytext, NULL);
 				break;
 			case IF:
-				printf("IF\t\t%s\n", yytext);
+				print_token_info("IF", yytext, NULL);
 				break;
 			case INPUT:
-				printf("INPUT\t\t%s\n", yytext);
+				print_token_info("INPUT", yytext, NULL);
 				break;
 			case INT:
-				printf("INT\t\t%s\n", yytext);
+				print_token_info("INT", yytext, NULL);
 				break;
 			case OUTPUT:
 				printf("OUTPUT\t\t%s\n", yytext);
+				print_token_info("OUTPUT", yytext, NULL);
 				break;
 			case SWITCH:
-				printf("SWITCH\t\t%s\n", yytext);
+				print_token_info("SWITCH", yytext, NULL);
 				break;
 			case WHILE:
-				printf("WHILE\t\t%s\n", yytext);
+				print_token_info("WHILE", yytext, NULL);
 				break;
-
+			
 			case '(':
-				printf("(\t\t%s\n", yytext);
+				print_token_info("(", yytext, NULL);
 				break;
 			case ')':
-				printf(")\t\t%s\n", yytext);
+				print_token_info(")", yytext, NULL);
 				break;
 			case '{':
-				printf("{\t\t%s\n", yytext);
+				print_token_info("{", yytext, NULL);
 				break;
 			case '}':
-				printf("}\t\t%s\n", yytext);
+				print_token_info("}", yytext, NULL);
 				break;
 			case ',':
-				printf(",\t\t%s\n", yytext);
+				print_token_info(",", yytext, NULL);
 				break;
 			case ':':
-				printf(":\t\t%s\n", yytext);
+				print_token_info(":", yytext, NULL);
 				break;
 			case ';':
 				printf(";\t\t%s\n", yytext);
+				print_token_info(";", yytext, NULL);
 				break;
 			case '=':
-				printf("=\t\t%s\n", yytext);
+				print_token_info("=", yytext, NULL);
 				break;
 			
 			case RELOP:
-				printf("RELOP\t\t%s\t\t%s\n", yytext, get_op_name(yylval.op));
+				print_token_info("RELOP", yytext, get_op_name(yylval.op));
 				break;
 			case ADDOP:
-				printf("ADDOP\t\t%s\t\t%s\n", yytext, get_op_name(yylval.op));
+				print_token_info("ADDOP", yytext, get_op_name(yylval.op));
 				break;
 			case MULOP:
-				printf("MULOP\t\t%s\t\t%s\n", yytext, get_op_name(yylval.op));
+				print_token_info("MULOP", yytext, get_op_name(yylval.op));
 				break;
 			case OR:
-				printf("OR\t\t%s\n", yytext);
+				print_token_info("OR", yytext, NULL);
 				break;
 			case AND:
-				printf("AND\t\t%s\n", yytext);
+				print_token_info("AND", yytext, NULL);
 				break;
 			case NOT:
-				printf("NOT\t\t%s\n", yytext);
+				print_token_info("NOT", yytext, NULL);
 				break;
 			case CAST:
-				const char *typeName = (yylval.typ == INT) ? "INT" : "FLOAT";
-				printf("CAST\t\t%s\t\t%s\n", yytext, typeName);
+				{
+					const char *typeName = (yylval.typ == INT) ? "INT" : "FLOAT";
+					print_token_info("CAST", yytext, typeName);
+				}
 				break;
 			
 			default:
-				printf("ERROR: unrecognized character\n");
-				exit(1);
+				fprintf(stderr, "ERROR: unrecognized token type %d\n", token);
+				break;
 		}
 	}
+	
 	fclose(yyin);
-	exit(0);
+	fclose(output_file);
+	return 0;
 }
-
