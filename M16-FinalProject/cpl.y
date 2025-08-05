@@ -8,6 +8,23 @@ void yyerror (const char *s);
 
 %}
 
+%code requires {
+   enum operator {PLUS, MINUS, MUL, DIV, EQ, NE, LT, GT, GE, LE };
+}
+
+%union {
+  struct {
+    union {
+      int ival;
+      float fval;
+    };
+    int type;  // INT or FLOAT
+  } num_val;
+  char name[30];
+  enum operator op;
+  int cast_type;
+};
+
 %token<name> ID
 %token<num_val> NUM
 
@@ -31,22 +48,6 @@ void yyerror (const char *s);
 %token NOT
 %token CAST
 
-%code requires {
-   enum operator {PLUS, MINUS, MUL, DIV, EQ, NE, LT, GT, GE, LE };
-}
-
-%union {
-  struct {
-    union {
-      int ival;
-      float fval;
-    };
-    int type;  // INT or FLOAT
-  } num_val;
-  char name[30];
-  enum operator op;
-  int cast_type;
-};
 
 %%
 
