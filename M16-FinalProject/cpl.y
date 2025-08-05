@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define INT_TYPE 0
+#define FLOAT_TYPE 1
+
 extern int yylex (void);
 void yyerror (const char *s);
 
@@ -18,7 +21,7 @@ void yyerror (const char *s);
       int ival;
       float fval;
     };
-    int type;  // INT or FLOAT
+    int type;  // INT_TYPE or FLOAT_TYPE
   } num_val;
   char name[30];
   enum operator op;
@@ -40,14 +43,22 @@ void yyerror (const char *s);
 %token SWITCH
 %token WHILE
 
-%token RELOP
-%token ADDOP
-%token MULOP
+%token<op> RELOP
+%token<op> ADDOP
+%token<op> MULOP
 %token OR
 %token AND
 %token NOT
-%token CAST
+%token<cast_type> CAST
 
+%type<cast_type> type
+
+%left OR
+%left AND
+%left RELOP
+%left ADDOP
+%left MULOP
+%right NOT
 
 %%
 
@@ -58,9 +69,12 @@ declarations: declarations declaration
 			| %empty
 			;
 declaration: idlist ':' type ';'
+			{ printf("Declaration: type %d\n", $3); }
 			;
 type: INT
+	{ $$ = INT_TYPE; }
 	| FLOAT
+	{ $$ = FLOAT_TYPE; }
 	;
 idlist: idlist ',' ID
 	  | ID
@@ -94,7 +108,7 @@ switch_stmt: SWITCH '(' expression ')' '{' caselist DEFAULT ':' stmtlist '}'
 			;
 caselist: caselist CASE NUM ':' stmtlist
 		{ 
-			if ($3.type != INT) {
+			if ($3.type != INT_TYPE) {
 				yyerror("Case value must be integer");
 			} else {
 				printf("Case %d\n", $3.ival);
@@ -140,7 +154,7 @@ factor: '(' expression ')'
 	  { printf("Identifier: %s\n", $1); }
 	  | NUM
 	  {
-	    if ($1.type == INT) {
+	    if ($1.type == INT_TYPE) {
 			printf("Int: %d\n", $1.ival);
 		} else {
 			printf("Float: %f\n", $1.fval);
