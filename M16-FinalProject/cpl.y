@@ -8,9 +8,8 @@ void yyerror (const char *s);
 
 %}
 
-%token<ival> INT_NUM
-%token<fval> FLOAT_NUM
 %token<name> ID
+%token<num_val> NUM
 
 %token BREAK
 %token CASE
@@ -37,11 +36,16 @@ void yyerror (const char *s);
 }
 
 %union {
-  int ival;
-  float fval;
+  struct {
+    union {
+      int ival;
+      float fval;
+    };
+    int type;  // INT or FLOAT
+  } num_val;
   char name[30];
   enum operator op;
-  int typ;
+  int cast_type;
 };
 
 %%
@@ -87,8 +91,14 @@ while_stmt: WHILE '(' boolexpr ')' stmt
 switch_stmt: SWITCH '(' expression ')' '{' caselist DEFAULT ':' stmtlist '}'
 			{ printf("Switch statement\n"); }
 			;
-caselist: caselist CASE INT_NUM ':' stmtlist
-		{ printf("Case %d\n", $3); }
+caselist: caselist CASE NUM ':' stmtlist
+		{ 
+			if ($3.type != INT) {
+				yyerror("Case value must be integer");
+			} else {
+				printf("Case %d\n", $3.ival);
+			}
+		}
 		| %empty
 		;
 break_stmt: BREAK ';'
@@ -127,8 +137,14 @@ factor: '(' expression ')'
 	  { printf("Cast expression\n"); }
 	  | ID
 	  { printf("Identifier: %s\n", $1); }
-	  | INT_NUM
-	  { printf("Number: %d\n", $1); }
+	  | NUM
+	  {
+	    if ($1.type == INT) {
+			printf("Int: %d\n", $1.ival);
+		} else {
+			printf("Float: %f\n", $1.fval);
+        }
+	  }
 	  ;
 
 %%

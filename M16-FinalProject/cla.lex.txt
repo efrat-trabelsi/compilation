@@ -16,8 +16,8 @@ int line = 1;
 
 %%
 
-[0-9]+			{ yylval.ival = atoi(yytext); return INT_NUM; }
-[0-9]+\.[0-9]*	{ yylval.fval = atof(yytext); return FLOAT_NUM; }
+[0-9]+			{ yylval.num_val.ival = atoi(yytext); yylval.num_val.type = INT; return NUM; }
+[0-9]+\.[0-9]*	{ yylval.num_val.fval = atof(yytext); yylval.num_val.type = FLOAT; return NUM; }
 
 "break"		{ return BREAK; }
 "case"		{ return CASE; }
@@ -54,8 +54,8 @@ int line = 1;
 "&&"	{ return AND; }
 "!"		{ return NOT; }
 
-"cast<int>"		{ yylval.typ = INT; return CAST; }
-"cast<float>"	{ yylval.typ = FLOAT; return CAST; }
+"cast<int>"		{ yylval.cast_type = INT; return CAST; }
+"cast<float>"	{ yylval.cast_type = FLOAT; return CAST; }
 
 [a-zA-Z][a-zA-Z0-9]*	{ strcpy(yylval.name, yytext); return ID; }
 
