@@ -1,8 +1,13 @@
 %{
+
+extern int yylex (void);
+void yyerror (const char *s);
+
 %}
 
-%token NUM
-%token ID
+%token<ival> INT_NUM
+%token<fval> FLOAT_NUM
+%token<name> ID
 
 %token BREAK
 %token CASE
@@ -23,6 +28,18 @@
 %token AND
 %token NOT
 %token CAST
+
+%code requires {
+   enum operator {PLUS, MINUS, MUL, DIV, EQ, NE, LT, GT, GE, LE };
+}
+
+%union {
+  int ival;
+  float fval;
+  char name[30];
+  enum operator op;
+  int typ;
+};
 
 %%
 
@@ -60,7 +77,7 @@ while_stmt: WHILE '(' boolexpr ')' stmt
 			;
 switch_stmt: SWITCH '(' expression ')' '{' caselist DEFAULT ':' stmtlist '}'
 			;
-caselist: caselist CASE NUM ':' stmtlist
+caselist: caselist CASE INT_NUM ':' stmtlist
 		| %empty
 		;
 break_stmt: BREAK ';'
@@ -88,7 +105,7 @@ term: term MULOP factor
 factor: '(' expression ')'
 	  | CAST '(' expression ')'
 	  | ID
-	  | NUM
+	  | INT_NUM
 	  ;
 
 %%
