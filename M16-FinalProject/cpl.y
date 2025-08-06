@@ -2,12 +2,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#define INT_TYPE 0
-#define FLOAT_TYPE 1
+#include "symbol_table.h"
+#include "code_gen.h"
 
 extern int yylex (void);
-void yyerror (const char *s);
+extern int line;
+
+int has_errors = 0;
 
 %}
 
@@ -63,13 +64,20 @@ void yyerror (const char *s);
 %%
 
 program: declarations stmt_block
-		{ printf("Parsed program successfully!\n"); }
+		{
+			if (!has_errors) {
+				emit_halt();
+			}
+		}
 		;
 declarations: declarations declaration
 			| %empty
 			;
 declaration: idlist ':' type ';'
-			{ printf("Declaration: type %d\n", $3); }
+			{
+				printf("Declaration: type %d\n", $3);
+				current_type = $3;
+			}
 			;
 type: INT
 	{ $$ = INT_TYPE; }
@@ -77,7 +85,23 @@ type: INT
 	{ $$ = FLOAT_TYPE; }
 	;
 idlist: idlist ',' ID
-	  | ID
+		{
+		  if (lookup_symbol($3) != -1) {
+			fprintf(stderr, "line %d: variable '%s' already declared\n", line, $3);
+			has_errors = 1;
+			} else {
+				add_symbol($3, current_type);
+			}
+		}
+		| ID {
+			if (lookup_symbol($1) != -1) {
+				fprintf(stderr, "line %d: variable '%s' already declared\n", line, $1);
+				has_errors = 1;
+			} else {
+				add_symbol($1, current_type);
+				current_type = INT_TYPE; // Reset for next declaration
+			}
+		}
 	  ;
 stmt: assignment_stmt
 	| input_stmt
