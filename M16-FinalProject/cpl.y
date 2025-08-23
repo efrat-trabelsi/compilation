@@ -138,10 +138,26 @@ assignment_stmt: ID '=' expression ';'
 				}
 				;
 input_stmt: INPUT '(' ID ')' ';'
-			{ printf("Input to %s\n", $3); }
+			{
+				int var_index = lookup_symbol($3);
+				if (var_index == -1) {
+					fprintf(stderr, "line %d: variable '%s' not declared\n", line, $3);
+					has_errors = 1;
+				} else {
+					int var_type = get_symbol_type($3);
+					printf("Input to %s (type: %s)\n", $3, 
+						   var_type == INT_TYPE ? "int" : "float");
+					emit_input($3, var_type);
+				}
+			}
 			;
 output_stmt: OUTPUT '(' expression ')' ';'
-			{ printf("Output statement\n"); }
+			{
+				int expr_type = $3;
+				printf("Output statement (type: %s)\n", 
+					   expr_type == INT_TYPE ? "int" : "float");
+				emit_output(expr_type);
+			}
 			;
 if_stmt: IF '(' boolexpr ')' stmt ELSE stmt
 		{ printf("If-Else statement\n"); }
