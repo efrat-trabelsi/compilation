@@ -67,6 +67,7 @@ program: declarations stmt_block
 		{
 			if (!has_errors) {
 				emit_halt();
+				emit_signature();
 			}
 		}
 		;
