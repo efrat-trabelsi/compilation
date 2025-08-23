@@ -53,7 +53,8 @@ int has_errors = 0;
 %token NOT
 %token<cast_type> CAST
 
-%type<type_val> type
+%type<type_val> type expression term factor
+
 
 %left OR
 %left AND
@@ -116,7 +117,25 @@ stmt: assignment_stmt
 	| stmt_block
 	;
 assignment_stmt: ID '=' expression ';'
-				{ printf("Assignment to %s\n", $1); }
+				{
+					int var_index = lookup_symbol($1);
+					if (var_index == -1) {
+						fprintf(stderr, "line %d: variable '%s' not declared\n", line, $1);
+						has_errors = 1;
+					} else {
+						int var_type = get_symbol_type($1);
+						int expr_type = $3;
+						
+						if (var_type == expr_type || 
+							(var_type == FLOAT_TYPE && expr_type == INT_TYPE)) {
+							printf("Assignment to %s (type compatible)\n", $1);
+							emit_assignment($1, var_type, expr_type);
+						} else {
+							fprintf(stderr, "line %d: type mismatch in assignment to '%s'\n", line, $1);
+							has_errors = 1;
+						}
+					} 
+				}
 				;
 input_stmt: INPUT '(' ID ')' ';'
 			{ printf("Input to %s\n", $3); }
