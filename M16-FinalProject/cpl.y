@@ -27,6 +27,7 @@ int has_errors = 0;
   char name[30];
   enum operator op;
   int cast_type;
+  int type_val; 
 };
 
 %token<name> ID
@@ -52,7 +53,7 @@ int has_errors = 0;
 %token NOT
 %token<cast_type> CAST
 
-%type<cast_type> type
+%type<type_val> type
 
 %left OR
 %left AND
@@ -76,8 +77,8 @@ declarations: declarations declaration
 			;
 declaration: idlist ':' type ';'
 			{
-				printf("Declaration: type %d\n", $3);
-				current_type = $3;
+				printf("Declaration: type %s\n", $3==0? "INT": "FLOAT");
+				update_idlist_types($3);
 			}
 			;
 type: INT
@@ -91,7 +92,8 @@ idlist: idlist ',' ID
 			fprintf(stderr, "line %d: variable '%s' already declared\n", line, $3);
 			has_errors = 1;
 			} else {
-				add_symbol($3, current_type);
+				add_symbol($3, -1);
+				mark_pending_symbol($3);
 			}
 		}
 		| ID {
@@ -99,8 +101,8 @@ idlist: idlist ',' ID
 				fprintf(stderr, "line %d: variable '%s' already declared\n", line, $1);
 				has_errors = 1;
 			} else {
-				add_symbol($1, current_type);
-				current_type = INT_TYPE; // Reset for next declaration
+				add_symbol($1, -1);
+				mark_pending_symbol($1);
 			}
 		}
 	  ;
