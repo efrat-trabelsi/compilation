@@ -201,26 +201,73 @@ boolfactor: NOT '(' boolexpr ')'
 		  { printf("Relational operation\n"); }
 		  ;
 expression: expression ADDOP term
-		  { printf("Addition/Subtraction\n"); }
+		  {
+			int left_type = $1;
+			int right_type = $3;
+			int result_type = (left_type == FLOAT_TYPE || right_type == FLOAT_TYPE) 
+		                      ? FLOAT_TYPE : INT_TYPE;
+			printf("Addition/Subtraction (result type: %s)\n", 
+					result_type == INT_TYPE ? "int" : "float");
+			prev_temp = last_expression_result;
+			emit_binary_op($2, result_type);
+			$$ = result_type;
+		  }
 		  | term
+		  {
+			$$ = $1;
+		  }
 		  ;
 term: term MULOP factor
-	{ printf("Multiplication/Division\n"); }
+	{
+		int left_type = $1;
+		int right_type = $3;
+		int result_type = (left_type == FLOAT_TYPE || right_type == FLOAT_TYPE) 
+						  ? FLOAT_TYPE : INT_TYPE;
+		printf("Multiplication/Division (result type: %s)\n", 
+			   result_type == INT_TYPE ? "int" : "float");
+		prev_temp = last_expression_result;
+		emit_binary_op($2, result_type);
+		$$ = result_type;
+	}
 	| factor
+	{
+		$$ = $1;
+	}
 	;
 factor: '(' expression ')'
-	  { printf("Parenthesized expression\n"); }
+	  {
+		printf("Parenthesized expression\n");
+		$$ = $2;
+	  }
 	  | CAST '(' expression ')'
-	  { printf("Cast expression\n"); }
+	  {
+		printf("Cast expression to %s\n", $1 == INT_TYPE ? "int" : "float");
+		emit_cast($3, $1);
+		$$ = $1;
+	  }
 	  | ID
-	  { printf("Identifier: %s\n", $1); }
+	  {
+		int var_type = get_symbol_type($1);
+	    if (var_type == -1) {
+	      fprintf(stderr, "line %d: variable '%s' not declared\n", line, $1);
+	      has_errors = 1;
+	      $$ = INT_TYPE;  // Set a default value to prevent additional errors
+	    } else {
+	      printf("Identifier: %s (type: %s)\n", $1, var_type == INT_TYPE ? "int" : "float");
+	      emit_load_var($1);
+	      $$ = var_type;
+	    }
+	  }
 	  | NUM
 	  {
 	    if ($1.type == INT_TYPE) {
-			printf("Int: %d\n", $1.ival);
-		} else {
-			printf("Float: %f\n", $1.fval);
-        }
+	      printf("Int: %d\n", $1.ival);
+	      emit_load_constant_int($1.ival, INT_TYPE);
+	    } else {
+	      printf("Float: %f\n", $1.fval);
+	      emit_load_constant_float($1.fval, FLOAT_TYPE);
+	    }
+	    $$ = $1.type;
 	  }
 	  ;
 
