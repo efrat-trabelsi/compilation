@@ -1,0 +1,14 @@
+/* Program with errors - for testing */
+a, b: int;
+a: float;  /* Error: variable already declared */
+{
+    input(a);
+    c = a + b;  /* Error: variable c not declared */
+    output(a);
+}
+
+/* 
+Expected translation: no output file, only error messages to stderr
+line X: variable 'a' already declared
+line Y: variable 'c' not declared
+*/

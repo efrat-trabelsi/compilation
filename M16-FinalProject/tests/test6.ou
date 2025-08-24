@@ -1,0 +1,31 @@
+/* Switch statement */
+choice: int;
+{
+    input(choice);
+    switch (choice) {
+    case 1:
+        output(100);
+        break;
+    case 2:
+        output(200);
+    default:
+        output(999);
+    }
+}
+
+/* 
+Expected translation to QUAD:
+IINP choice
+IEQL t1 choice 1
+JMPZ L1 t1
+IPRT 100
+JUMP L3
+L1:
+IEQL t2 choice 2
+JMPZ L2 t2
+IPRT 200
+L2:
+IPRT 999
+L3:
+HALT
+*/

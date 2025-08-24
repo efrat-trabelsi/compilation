@@ -1,0 +1,22 @@
+/* Simple assignment program */
+a, b: int;
+c: float;
+{
+    a = 5;
+    b = 10;
+    c = 3.14;
+    output(a);
+    output(b);
+    output(c);
+}
+
+/* 
+Expected translation to QUAD:
+IASN a 5
+IASN b 10
+RASN c 3.14
+IPRT a
+IPRT b
+RPRT c
+HALT
+*/
