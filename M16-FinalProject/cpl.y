@@ -2,8 +2,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "symbol_table.h"
 #include "code_gen.h"
+
+extern char* last_expression_result;
+extern char* prev_temp;
 
 extern int yylex (void);
 extern int line;
@@ -27,7 +31,11 @@ int has_errors = 0;
   char name[30];
   enum operator op;
   int cast_type;
-  int type_val; 
+  struct {
+    int type;
+    char temp_name[30];
+  } expr_val;
+  int type_val;
 };
 
 %token<name> ID
@@ -53,8 +61,8 @@ int has_errors = 0;
 %token NOT
 %token<cast_type> CAST
 
-%type<type_val> type expression term factor
-
+%type<type_val> type
+%type<expr_val> expression term factor
 
 %left OR
 %left AND
@@ -124,11 +132,12 @@ assignment_stmt: ID '=' expression ';'
 						has_errors = 1;
 					} else {
 						int var_type = get_symbol_type($1);
-						int expr_type = $3;
+						int expr_type = $3.type;
 						
 						if (var_type == expr_type || 
 							(var_type == FLOAT_TYPE && expr_type == INT_TYPE)) {
 							printf("Assignment to %s (type compatible)\n", $1);
+							last_expression_result = $3.temp_name;
 							emit_assignment($1, var_type, expr_type);
 						} else {
 							fprintf(stderr, "line %d: type mismatch in assignment to '%s'\n", line, $1);
@@ -153,9 +162,10 @@ input_stmt: INPUT '(' ID ')' ';'
 			;
 output_stmt: OUTPUT '(' expression ')' ';'
 			{
-				int expr_type = $3;
+				int expr_type = $3.type;
 				printf("Output statement (type: %s)\n", 
 					   expr_type == INT_TYPE ? "int" : "float");
+				last_expression_result = $3.temp_name;
 				emit_output(expr_type);
 			}
 			;
@@ -202,72 +212,92 @@ boolfactor: NOT '(' boolexpr ')'
 		  ;
 expression: expression ADDOP term
 		  {
-			int left_type = $1;
-			int right_type = $3;
+			int left_type = $1.type;
+			int right_type = $3.type;
 			int result_type = (left_type == FLOAT_TYPE || right_type == FLOAT_TYPE) 
-		                      ? FLOAT_TYPE : INT_TYPE;
-			printf("Addition/Subtraction (result type: %s)\n", 
-					result_type == INT_TYPE ? "int" : "float");
-			prev_temp = last_expression_result;
+								? FLOAT_TYPE : INT_TYPE;
+			prev_temp = $1.temp_name;
+			last_expression_result = $3.temp_name;
 			emit_binary_op($2, result_type);
-			$$ = result_type;
-		  }
-		  | term
+			
+			$$.type = result_type;
+			strcpy($$.temp_name, last_expression_result);
+			
+            printf("Addition/Subtraction (result type: %s)\n", 
+                   result_type == INT_TYPE ? "int" : "float");
+          }
+          | term
 		  {
-			$$ = $1;
+			$$.type = $1.type;
+			strcpy($$.temp_name, $1.temp_name);
 		  }
 		  ;
+
 term: term MULOP factor
-	{
-		int left_type = $1;
-		int right_type = $3;
-		int result_type = (left_type == FLOAT_TYPE || right_type == FLOAT_TYPE) 
-						  ? FLOAT_TYPE : INT_TYPE;
-		printf("Multiplication/Division (result type: %s)\n", 
-			   result_type == INT_TYPE ? "int" : "float");
-		prev_temp = last_expression_result;
-		emit_binary_op($2, result_type);
-		$$ = result_type;
+    {
+	  int left_type = $1.type;
+	  int right_type = $3.type;
+	  int result_type = (left_type == FLOAT_TYPE || right_type == FLOAT_TYPE) 
+	  					? FLOAT_TYPE : INT_TYPE;
+	  prev_temp = $1.temp_name;
+	  last_expression_result = $3.temp_name;
+	  emit_binary_op($2, result_type);
+	  $$.type = result_type;
+	  strcpy($$.temp_name, last_expression_result);
+	  
+	  printf("Multiplication/Division (result type: %s)\n", 
+			 result_type == INT_TYPE ? "int" : "float");
 	}
 	| factor
 	{
-		$$ = $1;
+	  $$.type = $1.type;
+	  strcpy($$.temp_name, $1.temp_name);
 	}
 	;
+
 factor: '(' expression ')'
 	  {
 		printf("Parenthesized expression\n");
-		$$ = $2;
+		$$.type = $2.type;
+		strcpy($$.temp_name, $2.temp_name);
 	  }
 	  | CAST '(' expression ')'
 	  {
 		printf("Cast expression to %s\n", $1 == INT_TYPE ? "int" : "float");
-		emit_cast($3, $1);
-		$$ = $1;
+		last_expression_result = $3.temp_name;
+		emit_cast($3.type, $1);
+		
+		$$.type = $1;
+		strcpy($$.temp_name, last_expression_result);
 	  }
 	  | ID
 	  {
 		int var_type = get_symbol_type($1);
-	    if (var_type == -1) {
-	      fprintf(stderr, "line %d: variable '%s' not declared\n", line, $1);
-	      has_errors = 1;
-	      $$ = INT_TYPE;  // Set a default value to prevent additional errors
-	    } else {
-	      printf("Identifier: %s (type: %s)\n", $1, var_type == INT_TYPE ? "int" : "float");
-	      emit_load_var($1);
-	      $$ = var_type;
-	    }
+		if (var_type == -1) {
+		  fprintf(stderr, "line %d: variable '%s' not declared\n", line, $1);
+		  has_errors = 1;
+		  $$.type = INT_TYPE;
+		  strcpy($$.temp_name, "error_var");
+		} else {
+		  printf("Identifier: %s (type: %s)\n", $1, var_type == INT_TYPE ? "int" : "float");
+		  emit_load_var($1);
+		  
+		  $$.type = var_type;
+		  strcpy($$.temp_name, last_expression_result);
+		}
 	  }
 	  | NUM
 	  {
-	    if ($1.type == INT_TYPE) {
-	      printf("Int: %d\n", $1.ival);
-	      emit_load_constant_int($1.ival, INT_TYPE);
-	    } else {
-	      printf("Float: %f\n", $1.fval);
-	      emit_load_constant_float($1.fval, FLOAT_TYPE);
-	    }
-	    $$ = $1.type;
+		if ($1.type == INT_TYPE) {
+		  printf("Int: %d\n", $1.ival);
+		  emit_load_constant_int($1.ival, $1.type);
+		} else {
+		  printf("Float: %f\n", $1.fval);
+		  emit_load_constant_float($1.fval, $1.type);
+		}
+		
+		$$.type = $1.type;
+		strcpy($$.temp_name, last_expression_result);
 	  }
 	  ;
 

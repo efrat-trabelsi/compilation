@@ -89,8 +89,10 @@ void emit_cast(int from_type, int to_type) {
     } else if (from_type == FLOAT_TYPE && to_type == INT_TYPE) {
         printf("RTOI %s %s\n", result_temp, last_expression_result);
         fprintf(output_file, "RTOI %s %s\n", result_temp, last_expression_result);
+    } else {
+        // The types are the same - no need to convert
+        return;
     }
-    // If the types are the same - no need to convert, just pass the result.
     
     last_expression_result = result_temp;
 }
