@@ -62,7 +62,7 @@ int has_errors = 0;
 %token<cast_type> CAST
 
 %type<type_val> type
-%type<expr_val> expression term factor
+%type<expr_val> expression term factor boolexpr boolterm boolfactor
 
 %left OR
 %left AND
@@ -192,23 +192,53 @@ break_stmt: BREAK ';'
 			{ printf("Break statement\n"); }
 			;
 stmt_block: '{' stmtlist '}'
-			{ printf("Statement block\n"); }
+			{ 
+				printf("Statement block\n"); 
+			}
 			;
 stmtlist: stmtlist stmt
 		| %empty
 		;
 boolexpr: boolexpr OR boolterm
-		{ printf("Boolean OR\n"); }
+		{
+			printf("Boolean OR\n");
+			emit_logical_or($1.temp_name, $3.temp_name);
+			$$.type = INT_TYPE;
+			strcpy($$.temp_name, last_expression_result);		
+		}
 		| boolterm
+		{
+			$$.type = $1.type;
+			strcpy($$.temp_name, $1.temp_name);
+		}
 		;
 boolterm: boolterm AND boolfactor
-		{ printf("Boolean AND\n"); }
+		{
+			printf("Boolean AND\n");
+			emit_logical_and($1.temp_name, $3.temp_name);
+			$$.type = INT_TYPE;
+			strcpy($$.temp_name, last_expression_result);
+		}
 		| boolfactor
+		{
+			$$.type = $1.type;
+			strcpy($$.temp_name, $1.temp_name);
+		}
 		;
 boolfactor: NOT '(' boolexpr ')'
-		  { printf("Boolean NOT\n"); }
+		  {
+			printf("Boolean NOT\n");
+			emit_logical_not($3.temp_name);
+			$$.type = INT_TYPE;
+			strcpy($$.temp_name, last_expression_result);
+		  }
 		  | expression RELOP expression
-		  { printf("Relational operation\n"); }
+		  {
+			printf("Relational operation\n");
+			emit_relational_op($2, $1.type, $3.type, $1.temp_name, $3.temp_name);
+			$$.type = INT_TYPE;
+			strcpy($$.temp_name, last_expression_result);
+		  }
 		  ;
 expression: expression ADDOP term
 		  {
