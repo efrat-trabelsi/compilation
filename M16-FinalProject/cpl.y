@@ -169,11 +169,36 @@ output_stmt: OUTPUT '(' expression ')' ';'
 				emit_output(expr_type);
 			}
 			;
-if_stmt: IF '(' boolexpr ')' stmt ELSE stmt
-		{ printf("If-Else statement\n"); }
+if_stmt: IF '(' boolexpr ')'
+		{
+			// שמור את התווית לקפיצה אחרי ELSE
+			$<type_val>$ = emit_jump_if_zero_placeholder($3.temp_name);
+		}
+		stmt ELSE
+		{
+			$<type_val>7 = emit_jump_placeholder();
+			patch_instruction($<type_val>5, instruction_count + 1);
+		}
+		stmt
+		{
+			patch_instruction($<type_val>7, instruction_count + 1);
+			printf("If-Else statement completed\n");
+		}
 		;
-while_stmt: WHILE '(' boolexpr ')' stmt
-			{ printf("While statement\n"); }
+while_stmt: WHILE
+			{
+				$<type_val>$ = instruction_count + 1;
+			}
+			'(' boolexpr ')'
+			{
+				$<type_val>$ = emit_jump_if_zero_placeholder($4.temp_name);
+			}
+			stmt
+			{
+				emit_unconditional_jump($<type_val>2);
+				patch_instruction($<type_val>6, instruction_count + 1);
+				printf("While statement completed\n");
+			}
 			;
 switch_stmt: SWITCH '(' expression ')' '{' caselist DEFAULT ':' stmtlist '}'
 			{ printf("Switch statement\n"); }
