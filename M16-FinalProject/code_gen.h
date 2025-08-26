@@ -4,6 +4,7 @@
 #include "cpl.tab.h"
 
 #define MAX_INSTRUCTIONS 10000
+#define MAX_CASES 100
 
 // struct for backpatching
 typedef struct {
@@ -12,13 +13,21 @@ typedef struct {
     int patch_value;        // The value for fix
 } quad_instruction_t;
 
+typedef struct {
+    int case_value;
+    int jump_instruction_index;
+} case_entry_t;
+
+
 extern FILE* output_file;
 extern char* last_expression_result;
 extern char* prev_temp;  // Save the left expression result
 
 extern quad_instruction_t instruction_buffer[MAX_INSTRUCTIONS];
 extern int instruction_count;
-extern int next_label_id;
+
+extern case_entry_t case_table[MAX_CASES];
+extern int case_count;
 
 void emit_signature();
 
@@ -36,7 +45,6 @@ void emit_load_var(char* var_name);
 void emit_load_constant_int(int value, int type);
 void emit_load_constant_float(float value, int type);
 
-int generate_label();
 int emit_jump_placeholder();
 int emit_jump_if_zero_placeholder(char* condition_var);
 void emit_unconditional_jump(int target);
@@ -44,6 +52,11 @@ void patch_instruction(int instruction_index, int target);
 int get_current_instruction();
 void write_all_instructions();
 void add_instruction(char* instruction_str);
+
+void emit_switch_start(char* switch_var);
+int emit_case_jump_placeholder(int case_value, char* switch_var);
+void patch_case_jumps(int end_label);
+void reset_case_table();
 
 char* generate_temp_var();
 

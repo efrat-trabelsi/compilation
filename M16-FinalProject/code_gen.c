@@ -10,7 +10,9 @@ int instruction_count = 0;
 
 char* last_expression_result = NULL;
 char* prev_temp = NULL;
-int next_label_id = 1;
+
+case_entry_t case_table[MAX_CASES];
+int case_count = 0;
 
 void add_instruction(char* instruction_str) {
     strcpy(instruction_buffer[instruction_count].instruction, instruction_str);
@@ -309,10 +311,40 @@ void patch_instruction(int instruction_index, int target) {
     instruction_buffer[instruction_index].patch_value = target;
 }
 
-int generate_label() {
-    return next_label_id++;
-}
-
 int get_current_instruction() {
     return instruction_count + 1; // start from 1
+}
+
+void emit_switch_start(char* switch_var) {
+    // init cases count
+    case_count = 0;
+}
+
+int emit_case_jump_placeholder(int case_value, char* switch_var) {
+    char* temp = generate_temp_var();
+    char instruction[256];
+    
+    // compare to case
+    sprintf(instruction, "IEQL %s %s %d\n", temp, switch_var, case_value);
+    add_instruction(instruction);
+    printf("IEQL %s %s %d\n", temp, switch_var, case_value);
+    
+    // jump if equal
+    int jump_index = emit_jump_if_zero_placeholder(temp);
+    
+    case_table[case_count].case_value = case_value;
+    case_table[case_count].jump_instruction_index = jump_index;
+    case_count++;
+    
+    return jump_index;
+}
+
+void patch_case_jumps(int end_label) {
+    for (int i = 0; i < case_count; i++) {
+        patch_instruction(case_table[i].jump_instruction_index, end_label);
+    }
+}
+
+void reset_case_table() {
+    case_count = 0;
 }

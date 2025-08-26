@@ -200,17 +200,33 @@ while_stmt: WHILE
 				printf("While statement completed\n");
 			}
 			;
-switch_stmt: SWITCH '(' expression ')' '{' caselist DEFAULT ':' stmtlist '}'
-			{ printf("Switch statement\n"); }
-			;
-caselist: caselist CASE NUM ':' stmtlist
-		{ 
-			if ($3.type != INT_TYPE) {
-				yyerror("Case value must be integer");
-			} else {
-				printf("Case %d\n", $3.ival);
+switch_stmt: SWITCH '(' expression ')' '{'
+			{
+				if ($3.type != INT_TYPE) {
+					fprintf(stderr, "line %d: switch expression must be integer\n", line);
+					has_errors = 1;
+				}
+				emit_switch_start($3.temp_name);
+				strcpy($<expr_val>$.temp_name, $3.temp_name);
 			}
+			caselist DEFAULT ':' stmtlist '}'
+			{
+				patch_case_jumps(get_current_instruction());
+				reset_case_table();
+				printf("Switch statement completed\n");
+			}
+			;
+caselist: caselist CASE NUM ':'
+		{
+			if ($3.type != INT_TYPE) {
+				fprintf(stderr, "line %d: case value must be integer\n", line);
+				has_errors = 1;
+			} else {
+				emit_case_jump_placeholder($3.ival, $<expr_val>0.temp_name);
+				printf("Case %d\n", $3.ival);
+             }
 		}
+		stmtlist
 		| %empty
 		;
 break_stmt: BREAK ';'
