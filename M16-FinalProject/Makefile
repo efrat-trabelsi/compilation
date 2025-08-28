@@ -30,4 +30,12 @@ clean:
 # Rebuild everything
 rebuild: clean all
 
-.PHONY: all clean rebuild
+# Run tests
+test: $(TARGET)
+	python3 test_runner.py
+
+# Clean test output files
+test-clean:
+	rm -f tests/*.qud
+
+.PHONY: all clean rebuild test test-clean
