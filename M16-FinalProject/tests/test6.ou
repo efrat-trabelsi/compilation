@@ -16,16 +16,17 @@ choice: int;
 /* 
 Expected translation to QUAD:
 IINP choice
-IEQL t1 choice 1
-JMPZ L1 t1
-IPRT 100
-JUMP L3
-L1:
-IEQL t2 choice 2
-JMPZ L2 t2
-IPRT 200
-L2:
-IPRT 999
-L3:
+IEQL temp1 choice 1
+JMPZ 6 temp1
+IASN temp2 100
+IPRT temp2
+JUMP 12
+IEQL temp3 choice 2
+JMPZ 11 temp3
+IASN temp4 200
+IPRT temp4
+IASN temp5 999
+IPRT temp5
 HALT
+// Efrat Trabelsi
 */

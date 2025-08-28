@@ -12,11 +12,15 @@ c: float;
 
 /* 
 Expected translation to QUAD:
-IASN a 5
-IASN b 10
-RASN c 3.14
+IASN temp1 5
+IASN a temp1
+IASN temp2 10
+IASN b temp2
+RASN temp3 3.140000
+RASN c temp3
 IPRT a
 IPRT b
 RPRT c
 HALT
+// Efrat Trabelsi
 */

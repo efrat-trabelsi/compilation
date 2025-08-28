@@ -12,15 +12,17 @@ counter, limit: int;
 
 /* 
 Expected translation to QUAD:
-IASN counter 1
-IASN limit 5
-L1:
-IGRT t1 counter limit    // counter > limit
-INQL t2 t1 0            // !(counter > limit) = (counter <= limit)
-JMPZ L2 t2
+IASN temp1 1
+IASN counter temp1
+IASN temp2 5
+IASN limit temp2
+IGRT temp3 counter limit
+IEQL temp4 temp3 0
+JMPZ 11 temp4
 IPRT counter
-IADD counter counter 1
-JUMP L1
-L2:
+IADD temp5 counter 1
+IASN counter temp5
+JUMP 5
 HALT
+// Efrat Trabelsi
 */

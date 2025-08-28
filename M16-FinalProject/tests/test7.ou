@@ -8,7 +8,7 @@ a: float;  /* Error: variable already declared */
 }
 
 /* 
-Expected translation: no output file, only error messages to stderr
-line X: variable 'a' already declared
-line Y: variable 'c' not declared
+Expected translation: 
+line 3: variable 'a' already declared
+line 6: variable 'c' not declared
 */

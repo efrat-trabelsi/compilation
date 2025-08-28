@@ -13,9 +13,12 @@ x, y, sum, diff: int;
 Expected translation to QUAD:
 IINP x
 IINP y
-IADD sum x y
-ISUB diff x y
+IADD temp1 x y
+IASN sum temp1
+ISUB temp2 x y
+IASN diff temp2
 IPRT sum
 IPRT diff
 HALT
+// Efrat Trabelsi
 */
