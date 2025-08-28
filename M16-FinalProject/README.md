@@ -45,6 +45,23 @@ project_root/
 └── README.md
 ```
 
+## Testing
+
+Run all tests:
+```bash
+make test
+```
+
+Run a specific test:
+```bash
+python3 test_runner.py test1
+```
+
+Clean test output files:
+```bash
+make test-clean
+```
+
 ## Cleaning
 
 ```bash
