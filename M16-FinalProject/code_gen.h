@@ -58,6 +58,10 @@ int emit_case_jump_placeholder(int case_value, char* switch_var);
 void patch_case_jumps(int end_label);
 void reset_case_table();
 
+// break statement management
+void add_break_jump(int instruction_index);
+void patch_all_breaks(int target);
+
 char* generate_temp_var();
 
 #endif

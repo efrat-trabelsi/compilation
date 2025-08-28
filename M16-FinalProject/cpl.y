@@ -9,6 +9,9 @@
 extern char* last_expression_result;
 extern char* prev_temp;
 
+int in_loop = 0;
+int in_switch = 0;
+
 extern int yylex (void);
 extern int line;
 
@@ -187,6 +190,7 @@ if_stmt: IF '(' boolexpr ')'
 		;
 while_stmt: WHILE
 			{
+				in_loop++;
 				$<type_val>$ = instruction_count + 1;
 			}
 			'(' boolexpr ')'
@@ -197,6 +201,8 @@ while_stmt: WHILE
 			{
 				emit_unconditional_jump($<type_val>2);
 				patch_instruction($<type_val>6, instruction_count + 1);
+				patch_all_breaks(instruction_count + 1);
+				in_loop--;
 				printf("While statement completed\n");
 			}
 			;
@@ -206,12 +212,15 @@ switch_stmt: SWITCH '(' expression ')' '{'
 					fprintf(stderr, "line %d: switch expression must be integer\n", line);
 					has_errors = 1;
 				}
+				in_switch++;
 				emit_switch_start($3.temp_name);
 				strcpy($<expr_val>$.temp_name, $3.temp_name);
 			}
 			caselist DEFAULT ':' stmtlist '}'
 			{
 				patch_case_jumps(get_current_instruction());
+				patch_all_breaks(instruction_count + 1);
+				in_switch--;
 				reset_case_table();
 				printf("Switch statement completed\n");
 			}
@@ -230,7 +239,16 @@ caselist: caselist CASE NUM ':'
 		| %empty
 		;
 break_stmt: BREAK ';'
-			{ printf("Break statement\n"); }
+			{
+				if (in_loop == 0 && in_switch == 0) {
+					fprintf(stderr, "line %d: break statement not within loop or switch\n", line);
+					has_errors = 1;
+				} else {
+					int break_jump = emit_jump_placeholder();
+					add_break_jump(break_jump);
+					printf("Break statement\n");
+				}
+			}
 			;
 stmt_block: '{' stmtlist '}'
 			{ 

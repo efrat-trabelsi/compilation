@@ -11,8 +11,13 @@ int instruction_count = 0;
 char* last_expression_result = NULL;
 char* prev_temp = NULL;
 
+// switch management
 case_entry_t case_table[MAX_CASES];
 int case_count = 0;
+
+// break management
+static int break_jumps[MAX_INSTRUCTIONS];
+static int break_count = 0;
 
 void add_instruction(char* instruction_str) {
     strcpy(instruction_buffer[instruction_count].instruction, instruction_str);
@@ -347,4 +352,18 @@ void patch_case_jumps(int end_label) {
 
 void reset_case_table() {
     case_count = 0;
+}
+
+void add_break_jump(int instruction_index) {
+    if (break_count < MAX_INSTRUCTIONS) {
+        break_jumps[break_count] = instruction_index;
+        break_count++;
+    }
+}
+
+void patch_all_breaks(int target) {
+    for (int i = 0; i < break_count; i++) {
+        patch_instruction(break_jumps[i], target);
+    }
+    break_count = 0;
 }
