@@ -3,10 +3,13 @@
 #include <string.h>
 #include "symbol_table.h"
 
+// for the existing symbols
 symbol_t symbol_table[MAX_SYMBOLS];
 int symbol_count = 0;
-int current_type = INT_TYPE;
 
+int current_type = INT_TYPE;  // can be removed
+
+// for pending symbols before declaration
 char pending_symbols[MAX_SYMBOLS][MAX_NAME_LEN];
 int pending_count = 0;
 
@@ -31,15 +34,6 @@ void add_symbol(char* name, int type) {
 	symbol_count++;
 }
 
-int get_symbol_type(char* name) {
-	int index = lookup_symbol(name);
-	if (index == -1) {
-        yyerror("Variable is not declared");
-        return -1;
-    }
-	return symbol_table[index].type;
-}
-
 void mark_pending_symbol(char* name) {
     if (pending_count < MAX_SYMBOLS) {
         strcpy(pending_symbols[pending_count], name);
@@ -55,4 +49,13 @@ void update_idlist_types(int type) {
         }
     }
     pending_count = 0;  // Reset for next declaration
+}
+
+int get_symbol_type(char* name) {
+    int index = lookup_symbol(name);
+    if (index == -1) {
+        yyerror("Variable is not declared");
+        return -1;
+    }
+    return symbol_table[index].type;
 }

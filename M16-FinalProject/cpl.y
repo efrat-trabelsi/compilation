@@ -6,16 +6,16 @@
 #include "symbol_table.h"
 #include "code_gen.h"
 
+extern int yylex (void);
+extern int line;
+
+int has_errors = 0;
+
 extern char* last_expression_result;
 extern char* prev_temp;
 
 int in_loop = 0;
 int in_switch = 0;
-
-extern int yylex (void);
-extern int line;
-
-int has_errors = 0;
 
 %}
 
@@ -44,24 +44,10 @@ int has_errors = 0;
 %token<name> ID
 %token<num_val> NUM
 
-%token BREAK
-%token CASE
-%token DEFAULT
-%token ELSE
-%token FLOAT
-%token IF
-%token INPUT
-%token INT
-%token OUTPUT
-%token SWITCH
-%token WHILE
+%token BREAK CASE DEFAULT ELSE FLOAT IF INPUT INT OUTPUT SWITCH WHILE
 
-%token<op> RELOP
-%token<op> ADDOP
-%token<op> MULOP
-%token OR
-%token AND
-%token NOT
+%token<op> RELOP ADDOP MULOP
+%token OR AND NOT
 %token<cast_type> CAST
 
 %type<type_val> type
@@ -89,14 +75,19 @@ declarations: declarations declaration
 			;
 declaration: idlist ':' type ';'
 			{
-				printf("Declaration: type %s\n", $3==0? "INT": "FLOAT");
+				printf("Declaration: type %s\n",
+						$3 == INT_TYPE ? "int": "float");
 				update_idlist_types($3);
 			}
 			;
 type: INT
-	{ $$ = INT_TYPE; }
+	{
+		$$ = INT_TYPE;
+		}
 	| FLOAT
-	{ $$ = FLOAT_TYPE; }
+	{
+		$$ = FLOAT_TYPE;
+	}
 	;
 idlist: idlist ',' ID
 		{
@@ -174,7 +165,7 @@ output_stmt: OUTPUT '(' expression ')' ';'
 			;
 if_stmt: IF '(' boolexpr ')'
 		{
-			// שמור את התווית לקפיצה אחרי ELSE
+			// Save the label for the jump after ELSE
 			$<type_val>$ = emit_jump_if_zero_placeholder($3.temp_name);
 		}
 		stmt ELSE
@@ -366,7 +357,7 @@ factor: '(' expression ')'
 		  fprintf(stderr, "line %d: variable '%s' not declared\n", line, $1);
 		  has_errors = 1;
 		  $$.type = INT_TYPE;
-		  strcpy($$.temp_name, "error_var");
+		  strcpy($$.temp_name, "error_var"); // needed??
 		} else {
 		  printf("Identifier: %s (type: %s)\n", $1, var_type == INT_TYPE ? "int" : "float");
 		  emit_load_var($1);

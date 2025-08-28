@@ -47,7 +47,7 @@ void emit_assignment(char* var_name, int var_type, int expr_type) {
 		add_instruction(instruction);
 	} else if (var_type == FLOAT_TYPE && expr_type == FLOAT_TYPE) {
 		printf("RASN %s %s\n", var_name, last_expression_result);
-	sprintf(instruction, "RASN %s %s\n", var_name, last_expression_result);
+	    sprintf(instruction, "RASN %s %s\n", var_name, last_expression_result);
 		add_instruction(instruction);
 	} else if (var_type == FLOAT_TYPE && expr_type == INT_TYPE) {
 		char* temp_float = generate_temp_var();
@@ -148,7 +148,6 @@ void emit_relational_op(enum operator op, int left_type, int right_type, char* l
             sprintf(instruction, "IEQL %s %s 0\n", result_temp, result_temp);
             add_instruction(instruction);
             last_expression_result = result_temp;
-            return;
         }
         else if (op == GE) {
             // left >= right === !(left < right)
@@ -159,7 +158,6 @@ void emit_relational_op(enum operator op, int left_type, int right_type, char* l
             sprintf(instruction, "IEQL %s %s 0\n", result_temp, result_temp);
             add_instruction(instruction);
             last_expression_result = result_temp;
-            return;
         }
     } else {
         // at least one of the operands is float
@@ -175,7 +173,6 @@ void emit_relational_op(enum operator op, int left_type, int right_type, char* l
             sprintf(instruction, "IEQL %s %s 0\n", result_temp, result_temp);
             add_instruction(instruction);
             last_expression_result = result_temp;
-            return;
         }
         else if (op == GE) {
             printf("RLSS %s %s %s\n", result_temp, left_operand, right_operand);
@@ -185,7 +182,6 @@ void emit_relational_op(enum operator op, int left_type, int right_type, char* l
             sprintf(instruction, "IEQL %s %s 0\n", result_temp, result_temp);
             add_instruction(instruction);
             last_expression_result = result_temp;
-            return;
         }
     }
     
@@ -208,7 +204,7 @@ void emit_binary_op(enum operator op, int result_type) {
         else if (op == MINUS) opcode = "ISUB";
         else if (op == MUL) opcode = "IMLT";
         else if (op == DIV) opcode = "IDIV";
-    } else {
+    } else {  // FLOAT_TYPE
         if (op == PLUS) opcode = "RADD";
         else if (op == MINUS) opcode = "RSUB";
         else if (op == MUL) opcode = "RMLT";
@@ -241,10 +237,10 @@ void emit_cast(int from_type, int to_type) {
     last_expression_result = result_temp;
 }
 
+// consider rename
 void emit_load_var(char* var_name) {
     last_expression_result = var_name;
 }
-
 
 void emit_load_constant_int(int value, int type) {
     char* temp = generate_temp_var();

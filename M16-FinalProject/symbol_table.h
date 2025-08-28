@@ -14,7 +14,8 @@ typedef struct {
     int is_declared;
 } symbol_t;
 
-extern int current_type;
+extern int current_type;  // can be removed
+
 extern symbol_t symbol_table[MAX_SYMBOLS];
 extern int symbol_count;
 
@@ -25,8 +26,8 @@ extern void yyerror (const char *s);
 
 int lookup_symbol(char* name);
 void add_symbol(char* name, int type);
-int get_symbol_type(char* name);
 void mark_pending_symbol(char* name);
 void update_idlist_types(int type);
+int get_symbol_type(char* name);
 
 #endif
