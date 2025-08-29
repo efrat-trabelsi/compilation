@@ -35,7 +35,6 @@ void emit_and_add(const char* format, ...) {
     add_instruction(instruction);
 }
 
-
 void create_output_file()
 {
     output_file = fopen(output_filename, "w");
@@ -128,54 +127,41 @@ void emit_logical_not(char* operand) {
 
 void emit_relational_op(enum operator op, int left_type, int right_type, char* left_operand, char* right_operand) {
     char* result_temp = generate_temp_var();
-    char* opcode;
 
+    // Map operators to opcodes
+    const char* opcode;
     if (left_type == INT_TYPE && right_type == INT_TYPE) {
-        if (op == EQ) opcode = "IEQL";
-        else if (op == NE) opcode = "INQL";
-        else if (op == LT) opcode = "ILSS";
-        else if (op == GT) opcode = "IGRT";
-        else if (op == LE) {
-            // left <= right === !(left > right)
-            emit_and_add("IGRT %s %s %s\n", result_temp, left_operand, right_operand);
-            char* final_temp = generate_temp_var();
-            emit_and_add("IEQL %s %s 0\n", final_temp, result_temp);
-            last_expression_result = final_temp;
-            return;
-        }
-        else if (op == GE) {
-            // left >= right === !(left < right)
-            emit_and_add("ILSS %s %s %s\n", result_temp, left_operand, right_operand);
-            char* final_temp = generate_temp_var();
-            emit_and_add("IEQL %s %s 0\n", final_temp, result_temp);
-            last_expression_result = final_temp;
-            return;
+        switch (op) {
+        case EQ: opcode = "IEQL"; break;
+        case NE: opcode = "INQL"; break;
+        case LT: opcode = "ILSS"; break;
+        case GT: opcode = "IGRT"; break;
+        case GE: opcode = "ILSS"; break;  // >= becomes 
+        case LE: opcode = "IGRT"; break;  // <= becomes >
         }
     }
     else {
-        // at least one of the operands is float
-        if (op == EQ) opcode = "REQL";
-        else if (op == NE) opcode = "RNQL";
-        else if (op == LT) opcode = "RLSS";
-        else if (op == GT) opcode = "RGRT";
-        else if (op == LE) {
-            emit_and_add("RGRT %s %s %s\n", result_temp, left_operand, right_operand);
-            char* final_temp = generate_temp_var();
-            emit_and_add("IEQL %s %s 0\n", final_temp, result_temp);
-            last_expression_result = final_temp;
-            return;
-        }
-        else if (op == GE) {
-            emit_and_add("RLSS %s %s %s\n", result_temp, left_operand, right_operand);
-            char* final_temp = generate_temp_var();
-            emit_and_add("IEQL %s %s 0\n", final_temp, result_temp);
-            last_expression_result = final_temp;
-            return;
+        switch (op) {
+        case EQ: opcode = "REQL"; break;
+        case NE: opcode = "RNQL"; break;
+        case LT: opcode = "RLSS"; break;
+        case GT: opcode = "RGRT"; break;
+        case GE: opcode = "RLSS"; break;  // >= becomes 
+        case LE: opcode = "RGRT"; break;  // <= becomes >
         }
     }
 
     emit_and_add("%s %s %s %s\n", opcode, result_temp, left_operand, right_operand);
-    last_expression_result = result_temp;
+
+    // Handle >= and <= by negating result
+    if (op == GE || op == LE) {
+        char* final_temp = generate_temp_var();
+        emit_and_add("IEQL %s %s 0\n", final_temp, result_temp);
+        last_expression_result = final_temp;
+    }
+    else {
+        last_expression_result = result_temp;
+    }
 }
 
 void emit_binary_op(enum operator op, int result_type) {
