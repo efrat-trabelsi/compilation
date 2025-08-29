@@ -238,7 +238,7 @@ caselist: caselist CASE NUM ':'
 break_stmt: BREAK ';'
 			{
 				if (in_loop == 0 && in_switch == 0) {
-					yyerror("Parser: break statement not within loop or switch");
+					yyerror("Syntax: break statement not within loop or switch");
 					has_errors = 1;
 				} else {
 					int break_jump = emit_jump_placeholder();
