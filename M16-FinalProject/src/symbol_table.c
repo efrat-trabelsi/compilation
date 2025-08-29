@@ -30,7 +30,6 @@ void add_symbol(char* name, int type) {
     }
 	strcpy(symbol_table[symbol_count].name, name);
 	symbol_table[symbol_count].type = type;
-	symbol_table[symbol_count].is_declared = 1;
 	symbol_count++;
 }
 

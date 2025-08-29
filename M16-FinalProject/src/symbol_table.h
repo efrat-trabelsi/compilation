@@ -11,7 +11,6 @@
 typedef struct {
     char name[MAX_NAME_LEN];
     int type;
-    int is_declared;
 } symbol_t;
 
 extern int current_type;  // can be removed
