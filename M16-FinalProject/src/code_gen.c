@@ -261,25 +261,28 @@ void emit_switch_start(char* switch_var) {
 }
 
 int emit_case_jump_placeholder(int case_value, char* switch_var) {
+    // Patch the previous case BEFORE generating the current case
+    if (case_count > 0) {
+        int prev_case_index = case_count - 1;
+        // The previous case should jump to this location (start of current case check)
+        patch_instruction(case_table[prev_case_index].jump_instruction_index,
+            get_current_instruction());
+    }
+
     char* temp = generate_temp_var();
 
-    // compare to case
+    // compare to case  
     emit_and_add("IEQL %s %s %d\n", temp, switch_var, case_value);
 
-    // jump if equal
+    // jump if NOT equal (if temp == 0)
     int jump_index = emit_jump_if_zero_placeholder(temp);
 
+    // Store for later patching
     case_table[case_count].case_value = case_value;
     case_table[case_count].jump_instruction_index = jump_index;
     case_count++;
 
     return jump_index;
-}
-
-void patch_case_jumps(int end_label) {
-    for (int i = 0; i < case_count; i++) {
-        patch_instruction(case_table[i].jump_instruction_index, end_label);
-    }
 }
 
 void reset_case_table() {

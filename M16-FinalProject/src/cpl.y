@@ -206,10 +206,18 @@ switch_stmt: SWITCH '(' expression ')' '{'
 				emit_switch_start($3.temp_name);
 				strcpy($<expr_val>$.temp_name, $3.temp_name);
 			}
-			caselist DEFAULT ':' stmtlist '}'
+			caselist DEFAULT ':'
 			{
-				patch_case_jumps(get_current_instruction());
-				patch_all_breaks(instruction_count + 1);
+				// Patch the last case to jump to default (current location)
+                if (case_count > 0) {
+                    int last_case_index = case_count - 1;
+                    patch_instruction(case_table[last_case_index].jump_instruction_index, 
+                                    get_current_instruction());
+                }
+			}
+			stmtlist '}'
+			{
+				patch_all_breaks(get_current_instruction());
 				in_switch--;
 				reset_case_table();
 				printf("Switch statement completed\n");

@@ -16,6 +16,7 @@ typedef struct {
 typedef struct {
     int case_value;
     int jump_instruction_index;
+    int next_case_location;
 } case_entry_t;
 
 
@@ -58,9 +59,9 @@ void emit_unconditional_jump(int target);
 void patch_instruction(int instruction_index, int target);
 int get_current_instruction();
 
+// switch statement management
 void emit_switch_start(char* switch_var);
 int emit_case_jump_placeholder(int case_value, char* switch_var);
-void patch_case_jumps(int end_label);
 void reset_case_table();
 
 // break statement management
