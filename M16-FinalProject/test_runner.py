@@ -11,10 +11,26 @@ def extract_expected_output(test_file):
         content = f.read()
     
     # Find the expected output in comments
-    match = re.search(r'/\*\s*Expected.*?:\s*(.*?)\*/', content, re.DOTALL)
+    match = re.search(r'/\*\s*Expected.*?translation to QUAD:(.*?)\*/', content, re.DOTALL | re.IGNORECASE)
     if match:
         lines = match.group(1).strip().split('\n')
-        # Filter out empty lines and "Expected" lines, but keep signature comments
+        expected = []
+        for line in lines:
+            line = line.strip()
+            if line and not line.startswith('Expected'):
+                expected.append(line)
+        return '\n'.join(expected) + '\n'
+    return ""
+
+def extract_expected_stderr(test_file):
+    """Extract expected STDERR from test file comments"""
+    with open(test_file, 'r') as f:
+        content = f.read()
+    
+    # Find the expected STDERR in comments
+    match = re.search(r'/\*\s*Expected.*?STDERR:(.*?)\*/', content, re.DOTALL | re.IGNORECASE)
+    if match:
+        lines = match.group(1).strip().split('\n')
         expected = []
         for line in lines:
             line = line.strip()
@@ -40,36 +56,29 @@ def run_test(test_name):
     result = subprocess.run(['./cpq', test_file], 
                           capture_output=True, text=True)
     
-    # Extract expected output
+    # Extract expected outputs
     expected_output = extract_expected_output(test_file)
-    expected_stderr = ""
+    expected_stderr = extract_expected_stderr(test_file)
     
-    # Check if this is an error test (contains error comments)
-    with open(test_file, 'r') as f:
-        content = f.read()
-        if "Error:" in content:
-            # Extract expected error messages
-            error_lines = re.findall(r'/\*.*?Error: (.*?)\*/', content)
-            expected_stderr = '\n'.join([f"line {i+1}: {err}" for i, err in enumerate(error_lines, 1)])
-            expected_output = ""  # No output file expected for error cases
-    
-    # Check results
     success = True
     
     if expected_stderr:
-        # Error test case
-        if result.returncode == 0:
-            print(f"❌ {test_name}: Expected errors but compilation succeeded")
-            success = False
-        elif expected_stderr.strip() not in result.stderr.strip():
+        # Error test case - check STDERR
+        if expected_stderr.strip() != result.stderr.strip():
             print(f"❌ {test_name}: STDERR mismatch")
-            print(f"Expected: {expected_stderr.strip()}")
-            print(f"Got: {result.stderr.strip()}")
+            print(f"Expected:\n{expected_stderr.strip()}")
+            print(f"Got:\n{result.stderr.strip()}")
             success = False
-        else:
+        
+        # Should not create output file on errors
+        if os.path.exists(output_file):
+            print(f"❌ {test_name}: Output file created despite errors")
+            success = False
+        
+        if success:
             print(f"✅ {test_name}: Error handling correct")
     else:
-        # Success test case
+        # Success test case - check output file
         if result.returncode != 0:
             print(f"❌ {test_name}: Compilation failed")
             print(f"STDERR: {result.stderr}")

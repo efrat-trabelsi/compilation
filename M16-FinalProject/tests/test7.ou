@@ -8,7 +8,7 @@ a: float;  /* Error: variable already declared */
 }
 
 /* 
-Expected translation: 
+Expected STDERR:
 line 3: variable 'a' already declared
 line 6: variable 'c' not declared
 */
