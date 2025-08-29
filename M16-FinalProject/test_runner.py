@@ -81,7 +81,7 @@ def run_test(test_name):
         # Success test case - check output file
         if result.returncode != 0:
             print(f"❌ {test_name}: Compilation failed")
-            print(f"STDERR: {result.stderr}")
+            print(f"STDERR:\n{result.stderr}")
             success = False
         elif not os.path.exists(output_file):
             print(f"❌ {test_name}: Output file not created")
