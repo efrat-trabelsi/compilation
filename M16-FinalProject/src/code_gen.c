@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>  // for va_list, va_start, va_end
 #include "code_gen.h"
@@ -155,9 +156,11 @@ void emit_relational_op(enum operator op, int left_type, int right_type, char* l
 
     // Handle >= and <= by negating result
     if (op == GE || op == LE) {
+        result_temp = strdup(result_temp);
         char* final_temp = generate_temp_var();
         emit_and_add("IEQL %s %s 0\n", final_temp, result_temp);
         last_expression_result = final_temp;
+        free(result_temp);
     }
     else {
         last_expression_result = result_temp;
