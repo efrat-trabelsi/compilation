@@ -1,0 +1,21 @@
+/* Complex mathematical expression */
+a: int;
+{
+	a = 5 + 4 * (3 + 2);
+    output(a);
+}
+
+/* 
+Expected translation to QUAD:
+IASN temp1 5
+IASN temp2 4
+IASN temp3 3
+IASN temp4 2
+IADD temp5 temp3 temp4
+IMLT temp6 temp2 temp5
+IADD temp7 temp1 temp6
+IASN a temp7
+IPRT a
+HALT
+// Efrat Trabelsi
+*/
