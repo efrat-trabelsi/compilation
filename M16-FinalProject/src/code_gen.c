@@ -136,7 +136,7 @@ void emit_relational_op(enum operator op, int left_type, int right_type, char* l
         case NE: opcode = "INQL"; break;
         case LT: opcode = "ILSS"; break;
         case GT: opcode = "IGRT"; break;
-        case GE: opcode = "ILSS"; break;  // >= becomes 
+        case GE: opcode = "ILSS"; break;  // >= becomes <
         case LE: opcode = "IGRT"; break;  // <= becomes >
         }
     }
@@ -146,7 +146,7 @@ void emit_relational_op(enum operator op, int left_type, int right_type, char* l
         case NE: opcode = "RNQL"; break;
         case LT: opcode = "RLSS"; break;
         case GT: opcode = "RGRT"; break;
-        case GE: opcode = "RLSS"; break;  // >= becomes 
+        case GE: opcode = "RLSS"; break;  // >= becomes <
         case LE: opcode = "RGRT"; break;  // <= becomes >
         }
     }
