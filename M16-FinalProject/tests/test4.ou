@@ -18,10 +18,11 @@ IASN temp2 5
 IASN limit temp2
 IGRT temp3 counter limit
 IEQL temp4 temp3 0
-JMPZ 11 temp4
+JMPZ 13 temp4
 IPRT counter
-IADD temp5 counter 1
-IASN counter temp5
+IASN temp5 1
+IADD temp6 counter temp5
+IASN counter temp6
 JUMP 5
 HALT
 // Efrat Trabelsi
