@@ -38,4 +38,6 @@ test: $(TARGET)
 test-clean:
 	rm -f tests/*.qud
 
-.PHONY: all clean rebuild test test-clean
+clean-all: clean test-clean
+
+.PHONY: all clean rebuild test test-clean clean-all
