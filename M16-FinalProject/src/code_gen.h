@@ -31,7 +31,12 @@ extern int instruction_count;
 extern case_entry_t case_table[MAX_CASES];
 extern int case_count;
 
+void emit_and_add(const char* format, ...);
 void emit_signature();
+
+void create_output_file();
+void write_all_instructions();
+void add_instruction(char* instruction_str);
 
 void emit_halt();
 void emit_assignment(char* var_name, int var_type, int expr_type);
@@ -52,10 +57,6 @@ int emit_jump_if_zero_placeholder(char* condition_var);
 void emit_unconditional_jump(int target);
 void patch_instruction(int instruction_index, int target);
 int get_current_instruction();
-
-void create_output_file();
-void write_all_instructions();
-void add_instruction(char* instruction_str);
 
 void emit_switch_start(char* switch_var);
 int emit_case_jump_placeholder(int case_value, char* switch_var);
