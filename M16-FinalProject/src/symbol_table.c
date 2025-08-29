@@ -53,7 +53,6 @@ void update_idlist_types(int type) {
 int get_symbol_type(char* name) {
     int index = lookup_symbol(name);
     if (index == -1) {
-        yyerror("Variable is not declared");
         return -1;
     }
     return symbol_table[index].type;

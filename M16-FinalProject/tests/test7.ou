@@ -4,11 +4,12 @@ a: float;  /* Error: variable already declared */
 {
     input(a);
     c = a + b;  /* Error: variable c not declared */
-    output(a);
+    output(a);#
 }
 
 /* 
 Expected STDERR:
-line 3: variable 'a' already declared
-line 6: variable 'c' not declared
+Line 3: Semantic: variable 'a' already declared
+Line 6: Semantic: variable 'c' not declared
+Line 7: Lexer: unrecognized token #(23)
 */

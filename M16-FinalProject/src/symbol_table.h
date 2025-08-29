@@ -22,6 +22,7 @@ extern char pending_symbols[MAX_SYMBOLS][MAX_NAME_LEN];
 extern int pending_count;
 
 extern void yyerror (const char *s);
+extern void yyerror_format(const char* format, ...);
 
 int lookup_symbol(char* name);
 void add_symbol(char* name, int type);

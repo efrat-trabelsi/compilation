@@ -73,8 +73,8 @@ int line = 1;
 } // end STAR_COMMENT
 
 .		{ 
-    fprintf(stderr, "line %d: unrecognized token %c(%x)\n", 
-            line, yytext[0], yytext[0]); 
+    yyerror_format("Lexer: unrecognized token %c(%x)\n", 
+                    yytext[0], yytext[0]); 
 }
 
 %%

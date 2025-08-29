@@ -7,7 +7,6 @@
 #include "code_gen.h"
 
 extern int yylex (void);
-extern int line;
 
 int has_errors = 0;
 
@@ -91,7 +90,7 @@ type: INT
 idlist: idlist ',' ID
 		{
 		  if (lookup_symbol($3) != -1) {
-			fprintf(stderr, "line %d: variable '%s' already declared\n", line, $3);
+			yyerror_format("Semantic: variable '%s' already declared", $3);
 			has_errors = 1;
 			} else {
 				add_symbol($3, -1);
@@ -100,7 +99,7 @@ idlist: idlist ',' ID
 		}
 		| ID {
 			if (lookup_symbol($1) != -1) {
-				fprintf(stderr, "line %d: variable '%s' already declared\n", line, $1);
+				yyerror_format("Semantic: variable '%s' already declared", $1);
 				has_errors = 1;
 			} else {
 				add_symbol($1, -1);
@@ -121,7 +120,7 @@ assignment_stmt: ID '=' expression ';'
 				{
 					int var_index = lookup_symbol($1);
 					if (var_index == -1) {
-						fprintf(stderr, "line %d: variable '%s' not declared\n", line, $1);
+						yyerror_format("Semantic: variable '%s' not declared", $1);
 						has_errors = 1;
 					} else {
 						int var_type = get_symbol_type($1);
@@ -133,7 +132,7 @@ assignment_stmt: ID '=' expression ';'
 							last_expression_result = $3.temp_name;
 							emit_assignment($1, var_type, expr_type);
 						} else {
-							fprintf(stderr, "line %d: type mismatch in assignment to '%s'\n", line, $1);
+							yyerror_format("Semantic: type mismatch in assignment to '%s'", $1);
 							has_errors = 1;
 						}
 					} 
@@ -143,7 +142,7 @@ input_stmt: INPUT '(' ID ')' ';'
 			{
 				int var_index = lookup_symbol($3);
 				if (var_index == -1) {
-					fprintf(stderr, "line %d: variable '%s' not declared\n", line, $3);
+					yyerror_format("Semantic: variable '%s' not declared", $3);
 					has_errors = 1;
 				} else {
 					int var_type = get_symbol_type($3);
@@ -199,7 +198,7 @@ while_stmt: WHILE
 switch_stmt: SWITCH '(' expression ')' '{'
 			{
 				if ($3.type != INT_TYPE) {
-					fprintf(stderr, "line %d: switch expression must be integer\n", line);
+					yyerror("Semantic: switch expression must be integer");
 					has_errors = 1;
 				}
 				in_switch++;
@@ -226,7 +225,7 @@ switch_stmt: SWITCH '(' expression ')' '{'
 caselist: caselist CASE NUM ':'
 		{
 			if ($3.type != INT_TYPE) {
-				fprintf(stderr, "line %d: case value must be integer\n", line);
+				yyerror("Semantic: case value must be integer");
 				has_errors = 1;
 			} else {
 				emit_case_jump_placeholder($3.ival, $<expr_val>0.temp_name);
@@ -239,7 +238,7 @@ caselist: caselist CASE NUM ':'
 break_stmt: BREAK ';'
 			{
 				if (in_loop == 0 && in_switch == 0) {
-					fprintf(stderr, "line %d: break statement not within loop or switch\n", line);
+					yyerror("Parser: break statement not within loop or switch");
 					has_errors = 1;
 				} else {
 					int break_jump = emit_jump_placeholder();
@@ -361,7 +360,7 @@ factor: '(' expression ')'
 	  {
 		int var_type = get_symbol_type($1);
 		if (var_type == -1) {
-		  fprintf(stderr, "line %d: variable '%s' not declared\n", line, $1);
+		  yyerror_format("Semantic: variable '%s' not declared", $1);
 		  has_errors = 1;
 		  $$.type = INT_TYPE;
 		  strcpy($$.temp_name, "error_var"); // needed??

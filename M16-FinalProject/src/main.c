@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 extern FILE *yyin;
 extern int yyparse();
@@ -41,5 +42,16 @@ int main(int argc, char **argv) {
 
 void yyerror(const char *s) {
     extern int line;
-    fprintf(stderr, "line %d: %s\n", line, s);
+    fprintf(stderr, "Line %d: %s\n", line, s);
+}
+
+void yyerror_format(const char* format, ...) {
+    va_list args;
+    char buffer[1024];
+
+    va_start(args, format);
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+
+    yyerror(buffer);
 }
