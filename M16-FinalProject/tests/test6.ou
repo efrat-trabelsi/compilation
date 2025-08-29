@@ -17,10 +17,10 @@ choice: int;
 Expected translation to QUAD:
 IINP choice
 IEQL temp1 choice 1
-JMPZ 6 temp1
+JMPZ 7 temp1
 IASN temp2 100
 IPRT temp2
-JUMP 12
+JUMP 13
 IEQL temp3 choice 2
 JMPZ 11 temp3
 IASN temp4 200
