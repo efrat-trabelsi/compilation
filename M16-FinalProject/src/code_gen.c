@@ -35,7 +35,7 @@ void emit_halt()
 	sprintf(instruction, "HALT\n");
 	add_instruction(instruction);
 	printf("HALT\n");
-	write_all_instructions();
+    create_output_file();
 }
 
 void emit_assignment(char* var_name, int var_type, int expr_type) {
@@ -133,7 +133,7 @@ void emit_relational_op(enum operator op, int left_type, int right_type, char* l
     char* result_temp = generate_temp_var();
     char* opcode;
     char instruction[256];
-    
+
     if (left_type == INT_TYPE && right_type == INT_TYPE) {
         if (op == EQ) opcode = "IEQL";
         else if (op == NE) opcode = "INQL";
@@ -295,6 +295,16 @@ void emit_unconditional_jump(int target) {
     sprintf(instruction, "JUMP %d\n", target);
     add_instruction(instruction);
     printf("JUMP %d\n", target);
+}
+
+void create_output_file()
+{
+    output_file = fopen(output_filename, "w");
+    if (output_file) {
+        write_all_instructions();
+        emit_signature();
+        fclose(output_file);
+    }
 }
 
 void write_all_instructions() {

@@ -20,6 +20,8 @@ typedef struct {
 
 
 extern FILE* output_file;
+extern char output_filename[256];
+
 extern char* last_expression_result;
 extern char* prev_temp;  // Save the left expression result
 
@@ -50,6 +52,8 @@ int emit_jump_if_zero_placeholder(char* condition_var);
 void emit_unconditional_jump(int target);
 void patch_instruction(int instruction_index, int target);
 int get_current_instruction();
+
+void create_output_file();
 void write_all_instructions();
 void add_instruction(char* instruction_str);
 

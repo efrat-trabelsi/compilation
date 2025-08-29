@@ -7,21 +7,13 @@ extern int yyparse();
 extern void yyerror(const char *s);
 
 FILE* output_file = NULL;
+char output_filename[256];
 
 int main(int argc, char **argv) {
 	// Create output filename
-	char output_filename[256];
 	strcpy(output_filename, argv[1]);
 	int len = strlen(argv[1]);
 	strcpy(output_filename + len - 3, ".qud");
-
-	// Open output file
-	output_file = fopen(output_filename, "w");
-	if (!output_file) {
-		fprintf(stderr, "Cannot create output file: %s\n", output_filename);
-		fclose(yyin);
-		return 1;
-	}
 	
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <input_file>\n", argv[0]);
@@ -43,7 +35,6 @@ int main(int argc, char **argv) {
         printf("Parsing failed with errors.\n");
     }
     
-	fclose(output_file);
     fclose(yyin);
     return result;
 }
