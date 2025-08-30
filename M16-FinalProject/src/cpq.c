@@ -11,16 +11,23 @@ FILE* output_file = NULL;
 char output_filename[256];
 
 int main(int argc, char **argv) {
-	// Create output filename
-	strcpy(output_filename, argv[1]);
-	int len = strlen(argv[1]);
-	strcpy(output_filename + len - 3, ".qud");
-
-    // Open input file - CPL program
+    // Check command line arguments
     if (argc != 2) {
-        fprintf(stderr, "Usage: %s <input_file>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <input_file>.ou\n", argv[0]);
         return 1;
     }
+
+    // Check input file extension
+    char* filename = argv[1];
+    int len = strlen(filename);
+    if (len < 4 || strcmp(filename + len - 3, ".ou") != 0) {
+        fprintf(stderr, "Error: Input file must have .ou extension\n");
+        return 1;
+    }
+
+    // Create output filename
+    strcpy(output_filename, argv[1]);
+    strcpy(output_filename + len - 3, ".qud");
     
     yyin = fopen(argv[1], "r");
     if (!yyin) {
