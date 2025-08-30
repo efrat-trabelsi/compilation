@@ -73,7 +73,7 @@ int line = 1;
 } // end STAR_COMMENT
 
 .		{ 
-    yyerror_format("Lexer: unrecognized token %c(%x)\n", 
+    yyerror_format("Lexer: unrecognized token %c(%x)", 
                     yytext[0], yytext[0]); 
 }
 

@@ -1065,7 +1065,7 @@ case 45:
 YY_RULE_SETUP
 #line 75 "cla.lex.txt"
 { 
-    yyerror_format("Lexer: unrecognized token %c(%x)\n", 
+    yyerror_format("Lexer: unrecognized token %c(%x)", 
                     yytext[0], yytext[0]); 
 }
 	YY_BREAK

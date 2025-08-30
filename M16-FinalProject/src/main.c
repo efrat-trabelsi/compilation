@@ -15,7 +15,8 @@ int main(int argc, char **argv) {
 	strcpy(output_filename, argv[1]);
 	int len = strlen(argv[1]);
 	strcpy(output_filename + len - 3, ".qud");
-	
+
+    // Open input file - CPL program
     if (argc != 2) {
         fprintf(stderr, "Usage: %s <input_file>\n", argv[0]);
         return 1;
@@ -35,7 +36,10 @@ int main(int argc, char **argv) {
     } else {
         printf("Parsing failed with errors.\n");
     }
-    
+
+    // Print signature in stderr
+    fprintf(stderr, "// Efrat Trabelsi\n");
+
     fclose(yyin);
     return result;
 }
