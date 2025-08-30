@@ -1,0 +1,19 @@
+x: int;
+y: float;
+{
+    x = 5;
+    y = x + 2.5;
+    output(z);
+    x = 3.14;
+    break;
+    input(unknown);
+}
+
+/* 
+Expected STDERR:
+Line 6: Semantic: variable 'z' not declared
+Line 7: Semantic: type mismatch in assignment to 'x'
+Line 8: Syntax: break statement not within loop or switch
+Line 9: Semantic: variable 'unknown' not declared
+// Efrat Trabelsi
+*/

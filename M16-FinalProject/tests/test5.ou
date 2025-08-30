@@ -1,0 +1,29 @@
+/* Mixed types and casting */
+i: int;
+f: float;
+result: float;
+{
+    i = 10;
+    f = 3.5;
+    result = cast<float>(i) + f;
+    output(result);
+    i = cast<int>(result);
+    output(i);
+}
+
+/* 
+Expected translation to QUAD:
+IASN temp1 10
+IASN i temp1
+RASN temp2 3.500000
+RASN f temp2
+ITOR temp3 i
+RADD temp4 temp3 f
+RASN result temp4
+RPRT result
+RTOI temp5 result
+IASN i temp5
+IPRT i
+HALT
+// Efrat Trabelsi
+*/

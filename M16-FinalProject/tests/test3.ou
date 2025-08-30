@@ -1,0 +1,23 @@
+/* Simple if-else program */
+a, b: float;
+{
+    input(a);
+    input(b);
+    if (a > b)
+        output(a);
+    else
+        output(b);
+}
+
+/* 
+Expected translation to QUAD:
+RINP a
+RINP b
+RGRT temp1 a b
+JMPZ 7 temp1
+RPRT a
+JUMP 8
+RPRT b
+HALT
+// Efrat Trabelsi
+*/

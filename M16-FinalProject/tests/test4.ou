@@ -1,0 +1,29 @@
+/* While loop program */
+counter, limit: int;
+{
+    counter = 1;
+    limit = 5;
+    while (counter <= limit)
+    {
+        output(counter);
+        counter = counter + 1;
+    }
+}
+
+/* 
+Expected translation to QUAD:
+IASN temp1 1
+IASN counter temp1
+IASN temp2 5
+IASN limit temp2
+IGRT temp3 counter limit
+IEQL temp4 temp3 0
+JMPZ 13 temp4
+IPRT counter
+IASN temp5 1
+IADD temp6 counter temp5
+IASN counter temp6
+JUMP 5
+HALT
+// Efrat Trabelsi
+*/

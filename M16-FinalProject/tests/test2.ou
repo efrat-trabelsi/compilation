@@ -1,0 +1,24 @@
+/* Arithmetic operations */
+x, y, sum, diff: int;
+{
+    input(x);
+    input(y);
+    sum = x + y;
+    diff = x - y;
+    output(sum);
+    output(diff);
+}
+
+/* 
+Expected translation to QUAD:
+IINP x
+IINP y
+IADD temp1 x y
+IASN sum temp1
+ISUB temp2 x y
+IASN diff temp2
+IPRT sum
+IPRT diff
+HALT
+// Efrat Trabelsi
+*/
