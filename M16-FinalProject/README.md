@@ -41,7 +41,17 @@ project_root/
 │   ├── symbol_table.c/h   # Symbol table management
 │   └── code_gen.c/h       # Code generation
 ├── tests/                 # Test files
+│   ├── test1.ou
+│   ├── test2.ou
+│   ├── test3.ou
+│   ├── test4.ou
+│   ├── test5.ou
+│   ├── test6.ou
+│   ├── test7.ou
+│   ├── test8.ou
+│   └── test9.ou
 ├── Makefile              # Build configuration
+├── test_runner.py        # Test runner script
 └── README.md
 ```
 
@@ -66,6 +76,7 @@ make test-clean
 
 ```bash
 make clean      # Remove generated files
+make clean-all  # Remove all generated files including test outputs
 make rebuild    # Clean and rebuild
 ```
 
