@@ -12,7 +12,7 @@ LEXER_FILES = $(SRCDIR)/lex.yy.c
 all: $(TARGET)
 
 # Build the compiler
-$(TARGET): $(SRCDIR)/cpl.tab.c $(SRCDIR)/lex.yy.c $(SRCDIR)/main.c $(SRCDIR)/code_gen.c $(SRCDIR)/symbol_table.c
+$(TARGET): $(SRCDIR)/cpl.tab.c $(SRCDIR)/lex.yy.c $(SRCDIR)/cpq.c $(SRCDIR)/code_gen.c $(SRCDIR)/symbol_table.c
 	$(CC) -o $@ $^
 
 # Generate parser files

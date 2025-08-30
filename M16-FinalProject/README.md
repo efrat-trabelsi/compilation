@@ -35,7 +35,7 @@ This creates `tests/test1.qud`.
 ```
 project_root/
 ├── src/                    # Source code
-│   ├── main.c             # Main program
+│   ├── cpq.c             # Main program
 │   ├── cpl.y              # Grammar rules (Bison)
 │   ├── cla.lex.txt        # Lexical rules (Flex)
 │   ├── symbol_table.c/h   # Symbol table management
